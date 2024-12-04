@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "demo360",
+            "name": "gecis360",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "demo360 (profile mode)",
+            "name": "gecis360 (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "demo360 (release mode)",
+            "name": "gecis360 (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
