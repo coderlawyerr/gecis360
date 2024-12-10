@@ -6,6 +6,7 @@ import 'package:armiyaapp/services/markaHelper.dart';
 import 'package:armiyaapp/view/appoinment/appoinment_view.dart';
 
 import 'package:armiyaapp/view/qr_page.dart';
+import 'package:armiyaapp/view/settings_page.dart';
 import 'package:armiyaapp/view/tabbar/tabbar.dart';
 import 'package:armiyaapp/view/login.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +68,8 @@ class _HomePageState extends State<HomePage> {
         return AppointmentView(); // Randevu Oluştur
       case 2:
         return PrettyQrHomePage(); // QR Kod
+      case 3:
+        return SettingPage();
       default:
         return MyTabbar(); // Varsayılan sayfa
     }
@@ -139,7 +142,7 @@ class _HomePageState extends State<HomePage> {
           Icon(Icons.event, size: 30, color: Colors.white), // Randevular
           Icon(Icons.add, size: 30, color: Colors.white), // Randevu Oluştur
           Icon(Icons.qr_code, size: 30, color: Colors.white), // QR Kod
-          Icon(Icons.exit_to_app, size: 30, color: Colors.white), // Çıkış
+          Icon(Icons.tune, size: 30, color: Colors.white), // Çıkış
         ],
         color: primaryColor,
         buttonBackgroundColor: primaryColor,
@@ -152,9 +155,9 @@ class _HomePageState extends State<HomePage> {
           });
 
           // Eğer çıkış sayfası (index == 3) seçildiyse dialog göster
-          if (index == 3) {
-            showExitDialog();
-          }
+          // if (index == 3) {
+          //   showExitDialog();
+          // }
         },
         letIndexChange: (index) => true,
       ),

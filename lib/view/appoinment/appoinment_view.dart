@@ -86,7 +86,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                           'Tesis Seçiniz',
                           style: TextStyle(color: Colors.grey),
                         ),
-                        value: provider.selectedFacilityId,
+                        value: provider.selectedFacilityId, // hayır api ile ilgili değil
                         isExpanded: true,
                         items: provider.facilities.map((facility) {
                           return DropdownMenuItem<int>(
@@ -218,6 +218,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                             ),
                           ),
                           const SizedBox(height: 10),
+
                           const Text(
                             'Mavi : Randevu eklenebilir',
                             style: TextStyle(color: Colors.blue),
@@ -244,26 +245,25 @@ class _AppointmentViewState extends State<AppointmentView> {
                             style: TextStyle(color: Colors.yellow),
                           ),
                           const SizedBox(height: 10),
-                          // Align(
-                          //   alignment: Alignment.topRight,
-                          //   child: ElevatedButton(
-                          //     onPressed: () {
-                          //       provider.resetToCalendar();
-                          //     },
-                          //     style: ElevatedButton.styleFrom(
-                          //       backgroundColor: const Color(0xFF5664D9), // Butonun arka plan rengi
-                          //       shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.circular(
-                          //           8, // Buradaki değeri köşe keskinliğine göre ayarlayabilirsiniz
-                          //         ),
-                          //       ),
-                          //     ),
-                          //     // child: const Text(
-                          //     //   'Takvime Dön',
-                          //     //   style: TextStyle(color: Colors.white),
-                          //     // ),
-                          //   ),
-                          // ),
+                          // Takvime Dön Butonu
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                provider.backToCalendar(); // Takvimi geri getir
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF5664D9), // Butonun arka plan rengi
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Takvime Dön',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
 
                           // Saat Dilimlerini Listele (Her Hizmet için)
                           ListView.builder(
@@ -319,6 +319,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                             // Renk haritasına göre rengi belirle
                                             var slotColor = provider.slotColors[formattedStartTime] ?? Colors.blue.shade100;
                                             if (isDisabled) slotColor = Colors.grey;
+                                            print('Seçili mi?? $isDisabled');
 
                                             return Opacity(
                                               opacity: isPast ? 0.5 : 1.0,
@@ -337,7 +338,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                                         provider.selectTimeSlot(timeSlot, serviceId);
 
                                                         ////////////////////////////////////////////////dıalog acccc
-                                                        showAppointmentDialog(context, timeSlot, service, serviceIndex, slotIndex);
+                                                        showAppointmentDialog(context, isDisabled, timeSlot, service, serviceIndex, slotIndex);
                                                         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                       },
                                                 child: Chip(
@@ -383,18 +384,16 @@ class _AppointmentViewState extends State<AppointmentView> {
     );
   }
 
-  void showAppointmentDialog(BuildContext context, DateTime selectedTime, Bilgi service, int serviceIndex, int slotIndex) async {
+  void showAppointmentDialog(BuildContext context, bool isDisabled, DateTime selectedTime, Bilgi service, int serviceIndex, int slotIndex) async {
     final provider = Provider.of<AppointmentProvider>(context, listen: false);
     bool isConfirmed = false; // Randevunun onaylandığını izlemek için
     GroupDetailsModel.Uyegruplari? selectedGroup; // Seçilen grup ID'sini saklamak için
-    int remainingAppointments = 10;
 
     // Seçilen tesis ve hizmet bilgilerini al
     String selectedFacility = provider.selectedFacilityId != null
         ? provider.facilities.firstWhere((f) => f.tesisId == provider.selectedFacilityId).tesisAd ?? 'Bilinmeyen Tesis'
         : 'Tesis Seçilmedi';
 
-    ///randevu
     String selectedService = provider.selectedServiceIds.isNotEmpty ? provider.selectedServices.map((s) => s.hizmetAd).join(', ') : 'Hizmet Seçilmedi';
 
     // Seçilen zaman dilimini belirleyin
@@ -413,7 +412,7 @@ class _AppointmentViewState extends State<AppointmentView> {
       context: context,
       isScrollControlled: true, // Bu, modalın tam ekran olmasını sağlar.
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
@@ -424,44 +423,41 @@ class _AppointmentViewState extends State<AppointmentView> {
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       'Randevu Onayı',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.only(right: 10, left: 10),
                       child: Row(
-                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // Mevcut Randevu Kutusu
                           Container(
-                            padding: EdgeInsets.all(3),
+                            padding: const EdgeInsets.all(3),
                             decoration: BoxDecoration(
                               color: Colors.blue.shade100,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Color(0xFF5664D9)),
+                              border: Border.all(color: const Color(0xFF5664D9)),
                             ),
                             child: Text(
                               'Mevcut Randevu: ${provider.existingAppointments.where((r) => r.hizmetid == service.hizmetId).length}', // Current appointments count
-                              style: TextStyle(fontSize: 14, color: Color(0xFF5664D9)),
+                              style: const TextStyle(fontSize: 14, color: Color(0xFF5664D9)),
                             ),
                           ),
-                          SizedBox(
-                            height: 30,
-                          ),
+                          const SizedBox(height: 30),
                           // Kalan Randevu Kutusu
                           Container(
-                            padding: EdgeInsets.all(3),
+                            padding: const EdgeInsets.all(3),
                             decoration: BoxDecoration(
                               color: Colors.blue.shade100,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Color(0xFF5664D9)),
+                              border: Border.all(color: const Color(0xFF5664D9)),
                             ),
                             child: Text(
                               'Kalan Randevu: ${service.saatlikKapasite ?? 'Bilinmiyor'}',
@@ -475,22 +471,18 @@ class _AppointmentViewState extends State<AppointmentView> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Container(
                       color: isConfirmed ? Colors.green.shade100 : null,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Seçilen Tesis: $selectedFacility'),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text('Seçilen Hizmet: $selectedService'),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text('Başlangıç Zaman: $formattedStartTime'), // Başlangıç ve bitiş saatini göster
-                          SizedBox(
-                            height: 5,
-                          ),
+                          const SizedBox(height: 5),
                           Text('Bitiş Zaman: $formattedEndTime'), // Başlangıç ve bitiş saatini göster
                         ],
                       ),
@@ -504,15 +496,15 @@ class _AppointmentViewState extends State<AppointmentView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text('Misafirler'),
-                              Divider(),
+                              const Text('Misafirler'),
+                              const Divider(),
                               ConstrainedBox(
                                 constraints: BoxConstraints(
                                   maxHeight: MediaQuery.of(context).size.height * 0.5, // Maksimum yüksekliği belirler
                                 ),
                                 child: ListView.builder(
                                   shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(), // Render hatalarını önler
+                                  physics: const NeverScrollableScrollPhysics(), // Render hatalarını önler
                                   itemCount: value.misafirList.length,
                                   itemBuilder: (context, index) {
                                     final misafir = value.misafirList[index];
@@ -528,7 +520,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                         );
                       },
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -539,7 +531,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                 context: context,
                                 isScrollControlled: true,
                                 backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
+                                shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                                 ),
                                 builder: (context) {
@@ -549,20 +541,20 @@ class _AppointmentViewState extends State<AppointmentView> {
                                       padding: EdgeInsets.only(
                                         bottom: MediaQuery.of(context).viewInsets.bottom,
                                       ),
-                                      child: MisafirAdd(), // MisafirAdd sayfası burada modal olarak açılır
+                                      child: const MisafirAdd(), // MisafirAdd sayfası burada modal olarak açılır
                                     ),
                                   );
                                 },
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF5664D9),
-                              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                              backgroundColor: const Color(0xFF5664D9),
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: Text(
+                            child: const Text(
                               'Misafir Ekle',
                               style: TextStyle(
                                 color: Colors.white,
@@ -611,18 +603,17 @@ class _AppointmentViewState extends State<AppointmentView> {
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: misafirProvider.misafirList.isNotEmpty ? Colors.grey : Color(0xFF5664D9),
-                                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                backgroundColor: misafirProvider.misafirList.isNotEmpty ? Colors.grey : const Color(0xFF5664D9),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Grup Ekle',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.normal,
-                                  fontSize: 15,
                                 ),
                               ),
                             ),
@@ -633,76 +624,81 @@ class _AppointmentViewState extends State<AppointmentView> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () async {
-                            final user = await SharedDataService().getLoginData();
-                            // Randevu bilgilerini gönder
-                            final res = await createAppointment(
-                              authorization: 'cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=', // Authorization bilgisi
-                              phpSessionId: '0ms1fk84dssk9s3mtfmmdsjq24', // PHPSESSID
-                              kullaniciId: user?.id?.toString() ?? "", // Kullanıcı ID
-                              token: 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', // Token
-                              hizmetId: selectedHizmetID.toString(), //"25" // Hizmet ID
-                              tesisId: selectedTesisID.toString(), // '1', // Tesis ID
-                              baslangicTarihi: selectedTime.toString().replaceAll("T", " "), // Başlangıç tarihi
-                              bitisTarihi: endTime.toString().replaceAll("T", " "),
-                            );
-                            // randevu bılgılerını guncelle
+                          onPressed: isConfirmed == true
+                              ? null
+                              : () async {
+                                  final user = await SharedDataService().getLoginData();
+                                  // Randevu bilgilerini gönder
+                                  final res = await createAppointment(
+                                    authorization: 'cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=', // Authorization bilgisi
+                                    phpSessionId: '0ms1fk84dssk9s3mtfmmdsjq24', // PHPSESSID
+                                    kullaniciId: user?.iD?.toString() ?? "", // Kullanıcı ID
+                                    token: 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', // Token
+                                    hizmetId: selectedHizmetID.toString(), //"25" // Hizmet ID
+                                    tesisId: selectedTesisID.toString(), // '1', // Tesis ID
+                                    baslangicTarihi: selectedTime.toString().replaceAll("T", " "), // Başlangıç tarihi
+                                    bitisTarihi: endTime.toString().replaceAll("T", " "),
+                                  );
 
-                            if (context.read<MisafirAddProvider>().misafirList.isEmpty) {
-                              provider.updateSlotColor(serviceIndex, slotIndex, Colors.green);
-                              // kalan randevu sayısını azalt
-                              if (service.saatlikKapasite != null && service.saatlikKapasite! > 0) {
-                                setState(() {
-                                  service.saatlikKapasite = service.saatlikKapasite! - 1; // Kalan randevu sayısını bir azalt
-                                });
-                              }
+                                  // Randevu bilgilerini güncelle
+                                  if (context.read<MisafirAddProvider>().misafirList.isEmpty) {
+                                    provider.updateSlotColor(serviceIndex, slotIndex, Colors.green);
+                                    // Kalan randevu sayısını azalt
+                                    if (service.saatlikKapasite != null && service.saatlikKapasite! > 0) {
+                                      setState(() {
+                                        service.saatlikKapasite = service.saatlikKapasite! - 1; // Kalan randevu sayısını bir azalt
+                                      });
+                                    }
 
-                              // Eğer kalan randevu sayısı sıfırsa, slot rengini kırmızı yap
-                              if (service.saatlikKapasite == 0) {
-                                provider.updateSlotColor(serviceIndex, slotIndex, Colors.red);
-                              }
-                            } else {
-                              provider.updateSlotColor(serviceIndex, slotIndex, Colors.yellow);
-                            }
+                                    // Eğer kalan randevu sayısı sıfırsa, slot rengini kırmızı yap
+                                    if (service.saatlikKapasite == 0) {
+                                      provider.updateSlotColor(serviceIndex, slotIndex, Colors.red);
+                                    }
+                                  } else {
+                                    provider.updateSlotColor(serviceIndex, slotIndex, Colors.yellow);
+                                  }
 
-                            // Randevu bilgilerini güncelle
-                            if (context.read<MisafirAddProvider>().misafirList.isEmpty) {
-                              provider.updateSlotColor(serviceIndex, slotIndex, Colors.green);
-                            } else {
-                              provider.updateSlotColor(serviceIndex, slotIndex, Colors.yellow);
-                            }
+                                  // Randevu onaylandı
+                                  setState(() {
+                                    isConfirmed = true;
+                                  });
 
-                            // Randevu onaylandı
-                            setState(() {
-                              isConfirmed = true;
-                            });
+                                  // Misafir listesini temizle
+                                  context.read<MisafirAddProvider>().clearMisafirList();
 
-                            // Misafir listesini temizle
-                            context.read<MisafirAddProvider>().clearMisafirList();
-
-                            if (res == "SUCCESS") {
-                              // Randevu onaylandı
-                              provider.decreaseCapacity(selectedHizmetID!); // Decrease the capacity
-                              setState(() {
-                                isConfirmed = true; // Update confirmation state
-                              });
-                              // Navigate or update UI as needed
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Zaten bir randevunuz mevcut!")));
-                            }
-                          },
+                                  if (res == "SUCCESS") {
+                                    // Randevu onaylandı
+                                    provider.decreaseCapacity(selectedHizmetID!); // Decrease the capacity
+                                    setState(() {
+                                      isConfirmed = true; // Update confirmation state
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Zaten bir randevunuz mevcut!")));
+                                  }
+                                },
                           child: Text(
-                            'Onayla',
-                            style: TextStyle(color: Color(0xFF5664D9)),
+                            isConfirmed == true ? 'Onaylandı' : 'Onayla',
+                            style: const TextStyle(color: Color(0xFF5664D9)),
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+                          onPressed: isConfirmed == true
+                              ? () {
+                                  Navigator.of(context).pop();
+                                }
+                              : () {
+                                  Navigator.of(context).pop();
+
+                                  // Seçilen randevu gününü iptal eder
+                                  setState(() {
+                                    isConfirmed = false;
+                                    isDisabled = false;
+                                    provider.services.clear();
+                                  });
+                                },
                           child: Text(
-                            'İptal',
-                            style: TextStyle(color: Color(0xFF5664D9)),
+                            isConfirmed == true ? 'Geri' : 'İptal',
+                            style: const TextStyle(color: Color(0xFF5664D9)),
                           ),
                         ),
                       ],
@@ -727,12 +723,12 @@ class _AppointmentViewState extends State<AppointmentView> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
-                BoxShadow(
+                const BoxShadow(
                   color: Colors.black26,
                   blurRadius: 10,
                   offset: Offset(0, 5),
@@ -745,12 +741,12 @@ class _AppointmentViewState extends State<AppointmentView> {
                 Expanded(
                   child: Text(
                     message,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Icon(Icons.close, color: Colors.white),
+                const Icon(Icons.close, color: Colors.white),
               ],
             ),
           ),
@@ -760,7 +756,7 @@ class _AppointmentViewState extends State<AppointmentView> {
 
     overlay?.insert(overlayEntry);
 
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
     });
   }

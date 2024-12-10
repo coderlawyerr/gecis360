@@ -1,50 +1,60 @@
+
 class UserModel {
   bool? status;
   String? message;
-  // Kullanicibilgisi? kullanicibilgisi;
-  int? id;
+  int? iD;
+  String? markaadi;
   String? isimsoyisim;
+  String? telefon;
+  String? eposta;
+  String? sifre;
+  Null? profilResmi;
   String? yetkiGrubu;
   String? ozelYetkiler;
-  String? markaAdi;
 
   UserModel(
       {this.status,
       this.message,
-      // this.kullanicibilgisi,
-      this.id,
+      this.iD,
+      this.markaadi,
       this.isimsoyisim,
+      this.telefon,
+      this.eposta,
+      this.sifre,
+      this.profilResmi,
       this.yetkiGrubu,
       this.ozelYetkiler});
 
   UserModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    // kullanicibilgisi = json['kullanicibilgisi'] != null
-    //     ? Kullanicibilgisi.fromJson(json['kullanicibilgisi'])
-    //     : null;
-    markaAdi = json["markaadi"];
-    id = json['ID'];
+    iD = json['ID'];
+    markaadi = json['markaadi'];
     isimsoyisim = json['isimsoyisim'];
+    telefon = json['telefon'];
+    eposta = json['eposta'];
+    sifre = json['sifre'];
+    profilResmi = json['profil_resmi'];
     yetkiGrubu = json['yetki_Grubu'];
     ozelYetkiler = json['ozelYetkiler'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['status'] = status;
-    data['message'] = message;
-    // if (kullanicibilgisi != null) {
-    //   data['kullanicibilgisi'] = kullanicibilgisi!.toJson();
-    // }
-    data['markaadi'] = markaAdi;
-    data['isimsoyisim'] = isimsoyisim;
-    data['yetki_Grubu'] = yetkiGrubu;
-    data['ozelYetkiler'] = ozelYetkiler;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['message'] = this.message;
+    data['ID'] = this.iD;
+    data['markaadi'] = this.markaadi;
+    data['isimsoyisim'] = this.isimsoyisim;
+    data['telefon'] = this.telefon;
+    data['eposta'] = this.eposta;
+    data['sifre'] = this.sifre;
+    data['profil_resmi'] = this.profilResmi;
+    data['yetki_Grubu'] = this.yetkiGrubu;
+    data['ozelYetkiler'] = this.ozelYetkiler;
     return data;
   }
 }
-
 class Marka {
   late String db_user;
   late String db_name;
@@ -56,6 +66,80 @@ class Marka {
     adi = json['marka_adi'];
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// class UserModel {
+//   bool? status;
+//   String? message;
+//   // Kullanicibilgisi? kullanicibilgisi;
+//   int? id;
+//   String? isimsoyisim;
+//   String? yetkiGrubu;
+//   String? ozelYetkiler;
+//   String? markaAdi;
+
+//   UserModel(
+//       {this.status,
+//       this.message,
+//       // this.kullanicibilgisi,
+//       this.id,
+//       this.isimsoyisim,
+//       this.yetkiGrubu,
+//       this.ozelYetkiler});
+
+//   UserModel.fromJson(Map<String, dynamic> json) {
+//     status = json['status'];
+//     message = json['message'];
+//     // kullanicibilgisi = json['kullanicibilgisi'] != null
+//     //     ? Kullanicibilgisi.fromJson(json['kullanicibilgisi'])
+//     //     : null;
+//     markaAdi = json["markaadi"];
+//     id = json['ID'];
+//     isimsoyisim = json['isimsoyisim'];
+//     yetkiGrubu = json['yetki_Grubu'];
+//     ozelYetkiler = json['ozelYetkiler'];
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = <String, dynamic>{};
+//     data['status'] = status;
+//     data['message'] = message;
+//     // if (kullanicibilgisi != null) {
+//     //   data['kullanicibilgisi'] = kullanicibilgisi!.toJson();
+//     // }
+//     data['markaadi'] = markaAdi;
+//     data['isimsoyisim'] = isimsoyisim;
+//     data['yetki_Grubu'] = yetkiGrubu;
+//     data['ozelYetkiler'] = ozelYetkiler;
+//     return data;
+//   }
+// }
+
+
 
 // class Kullanicibilgisi {
 //   int? id;

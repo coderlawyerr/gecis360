@@ -100,6 +100,7 @@ class AppointmentProvider with ChangeNotifier {
 
         if (jsonResponse is List) {
           _facilities = jsonResponse.map((item) => FacilitySelectModel.fromJson(item)).toList();
+          setSelectedFacility(null);
         } else {
           throw Exception('Beklenen formatta veri gelmedi.');
         }
@@ -118,7 +119,7 @@ class AppointmentProvider with ChangeNotifier {
   // Seçilen Tesis'e Bağlı Hizmetleri API'den Çekme
   Future<void> fetchServices(int facilityId) async {
     _isLoading = true;
-    notifyListeners();
+
     // Temizleme işlemleri
     _services = [];
     _selectedServiceIds = [];
@@ -129,6 +130,7 @@ class AppointmentProvider with ChangeNotifier {
     _existingAppointments = [];
     _showCalendar = false;
     _showTimeSlots = false;
+    notifyListeners();
     try {
       var url = 'https://$apiBaseUrl/api/randevu/olustur/index.php';
       final response = await http.post(
@@ -170,6 +172,7 @@ class AppointmentProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+    notifyListeners();
   }
 
   // Seçilen Hizmetleri Ayarlama
@@ -186,7 +189,7 @@ class AppointmentProvider with ChangeNotifier {
   }
 
   // Seçilen Tesis
-  void setSelectedFacility(int facilityId) {
+  void setSelectedFacility(int? facilityId) {
     _selectedFacilityId = facilityId;
     notifyListeners();
   }
@@ -363,12 +366,18 @@ class AppointmentProvider with ChangeNotifier {
     return _serviceTimeSlots;
   }
 
-  // Takvime Dönme Fonksiyonu
   void resetToCalendar() {
+    _showTimeSlots = false; // Saat dilimlerini gizle
+    _selectedDate = null; // Seçilen tarihi temizle
+    _serviceTimeSlots = {}; // Hizmet saat dilimlerini temizle
+    _servicePeriyots = {}; // Hizmet periyotlarını temizle
+    notifyListeners(); // Dinleyicileri bilgilendir
+  }
+
+  void backToCalendar() {
     _showTimeSlots = false;
-    _selectedDate = null;
-    _serviceTimeSlots = {};
-    _servicePeriyots = {};
+    calendarController.selectedDate = null;
+    _showCalendar = true;
     notifyListeners();
   }
 
@@ -495,26 +504,28 @@ class AppointmentProvider with ChangeNotifier {
     return saatDurumlari;
   }
 
-  // Saat Dilimini Seçme Fonksiyonu
   void selectTimeSlot(DateTime timeSlot, int serviceId) {
+    _existingAppointments.clear();
     // Öncelikle hizmetin saatlik kapasitesini kontrol edin
     Bilgi? service = _selectedServices.firstWhere((s) => s.hizmetId == serviceId);
 
     if (service.saatlikKapasite == 0 || service.ozelalan == 1) {
       // Bu hizmet için randevu alınamaz
-      // Kullanıcıya bilgi verebilirsiniz
       return;
+      // Seçilen saat dilimini işleme al
+      // ignore: dead_code
+      String formattedTime = DateFormat('HH:mm').format(timeSlot);
+      // Slot rengini değiştirme
+      slotColors[formattedTime] = Colors.blue.shade100; // Müsait olarak ayarla
+      notifyListeners();
     }
 
     // Burada randevu oluşturma işlemini gerçekleştirin
-    // Örneğin, API'ye randevu oluşturma isteği gönderin
-
-    // Örnek olarak, randevuyu mevcut randevulara ekleyelim
     String formattedTime = DateFormat('HH:mm').format(timeSlot);
     Randevu newAppointment = Randevu(
       baslangictarihi: timeSlot,
       bitistarihi: timeSlot.add(Duration(minutes: _servicePeriyots[serviceId]!)),
-      formatlibaslangictarihi: DateFormat('dd.MM.yyyy').format(timeSlot), // Formatlı tarih
+      formatlibaslangictarihi: DateFormat('dd.MM.yyyy').format(timeSlot),
       formatlibitistarihi: DateFormat('dd.MM.yyyy').format(timeSlot.add(Duration(minutes: _servicePeriyots[serviceId]!))),
       baslangicsaati: formattedTime,
       bitissaati: DateFormat('HH:mm').format(timeSlot.add(Duration(minutes: _servicePeriyots[serviceId]!))),
@@ -525,32 +536,31 @@ class AppointmentProvider with ChangeNotifier {
     );
 
     _existingAppointments.add(newAppointment);
-    // Seçilen saat dilimini diğer hizmetlerde sarı yap
+
+    // Seçilen saat dilimini diğer hizmetlerde gri yap
     _selectedServices.forEach((otherService) {
-      // Diğer hizmetler için saat dilimlerini güncelle
       if (otherService.hizmetId != serviceId) {
-        // Diğer hizmetin saat dilimlerini kontrol et
         List<DateTime> otherServiceSlots = _serviceTimeSlots[otherService.hizmetId!] ?? [];
         for (var slot in otherServiceSlots) {
           if (slot.isAtSameMomentAs(timeSlot)) {
-            // Eğer saat dilimi aynıysa, sarı olarak işaretle
-            slotColors[formattedTime] = Colors.yellow;
+            slotColors[formattedTime] = Colors.grey; // Diğer saat dilimlerini gri yap
           }
         }
       }
     });
 
+    // Onaylanan saat dilimini yeşil yap
+    slotColors[formattedTime] = Colors.green;
+
     generateTimeSlots(); // Saat dilimlerini yeniden oluştur
     notifyListeners();
-
-    // Randevu oluşturulduktan sonra kullanıcıya bildirim gönderin
-    // Örneğin, bir SnackBar gösterin veya başka bir UI güncellemesi yapın
-    confirmTimeSlot(timeSlot); // Seçilen saat dilimini onayla
   }
 
   void confirmTimeSlot(DateTime timeSlot) {
     if (!confirmedTimeSlots.contains(timeSlot)) {
       confirmedTimeSlots.add(timeSlot);
+      String formattedTime = DateFormat('HH:mm').format(timeSlot);
+      slotColors[formattedTime] = Colors.green; // Onaylandıktan sonra yeşil yap
       notifyListeners(); // Dinleyicileri bilgilendir
     }
   }

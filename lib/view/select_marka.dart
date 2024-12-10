@@ -50,7 +50,7 @@ class _SelectMarkaState extends State<SelectMarka> {
         UserModel user = UserModel.fromJson(data);
         if (user.status == true) {
           SharedDataService().saveLoginData(utf8.decode(response.bodyBytes));
-          MarkaHelper.setMarka(user.markaAdi!);
+          MarkaHelper.setMarka(user.markaadi!);
           nav.pushReplacement(
             context: context,
             routePage: HomePage(),

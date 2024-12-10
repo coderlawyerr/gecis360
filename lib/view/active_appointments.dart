@@ -78,7 +78,7 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
       'Authorization': 'Basic cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=',
       'PHPSESSID': '0ms1fk84dssk9s3mtfmmdsjq24',
     };
-    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'aktifrandevular': '1', 'kullanici_id': myusermodel?.id?.toString() ?? ""};
+    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'aktifrandevular': '1', 'kullanici_id': myusermodel?.iD?.toString() ?? ""};
 
     try {
       final response = await http.post(Uri.parse(url), headers: headers, body: body);

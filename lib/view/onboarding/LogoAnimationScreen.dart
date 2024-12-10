@@ -50,7 +50,7 @@ class _LogoAnimationScreenState extends State<LogoAnimationScreen> with SingleTi
 
           var user = await SharedDataService().getLoginData();
           if (user != null) {
-            MarkaHelper.setMarka(user.markaAdi!);
+            MarkaHelper.setMarka(user.markaadi!);
           }
           Navigator.pushReplacement(
             context,
@@ -63,7 +63,7 @@ class _LogoAnimationScreenState extends State<LogoAnimationScreen> with SingleTi
 
   @override
   void dispose() {
-    _controller.dispose(); 
+    _controller.dispose();
     super.dispose();
   }
 

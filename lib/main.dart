@@ -1,10 +1,11 @@
 import 'package:armiyaapp/providers/appoinment/appoinment_provider.dart';
 import 'package:armiyaapp/providers/appoinment/membergroups_provider.dart';
 import 'package:armiyaapp/providers/appoinment/misafir_add_provider.dart';
-import 'package:armiyaapp/view/my_qr.dart';
+import 'package:armiyaapp/view/data_table.dart';
+import 'package:armiyaapp/view/edit_page.dart';
 
 import 'package:armiyaapp/view/onboarding/LogoAnimationScreen.dart';
-import 'package:armiyaapp/view/pretty_qr.dart';
+import 'package:armiyaapp/view/settings_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

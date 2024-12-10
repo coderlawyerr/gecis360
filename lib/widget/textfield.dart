@@ -5,6 +5,7 @@ class CustomTextField extends StatelessWidget {
   final bool isPassword;
   final String? suffixText; // İsteğe bağlı suffix metni
   final Widget? suffixIcon; // İkon için ekledik
+  final bool obscureText; // Bu satırı ekleyin
   final TextEditingController controller; // Controller
   final String? Function(String?)? validator;
   final TextInputType? keyboardType; // Klavye tipi için parametre
@@ -14,6 +15,9 @@ class CustomTextField extends StatelessWidget {
     this.isPassword = false,
     this.suffixText,
     this.suffixIcon,
+     this.obscureText = false, // Varsayılan olarak false, şifre alanlarında true olur
+    // Bu özellik gerekli
+
     required this.controller,
     this.validator,
     this.keyboardType, // Klavye tipi isteğe bağlı
@@ -23,14 +27,12 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width:
-          MediaQuery.of(context).size.width / 1, // Ekranın 3'te biri genişlikte
+      width: MediaQuery.of(context).size.width / 1, // Ekranın 3'te biri genişlikte
       child: TextFormField(
-        
+         obscureText: isPassword ? obscureText : false, // Eğer şifre ise, obscureText kullanılacak
         controller: controller,
-        obscureText: isPassword,
-        keyboardType:
-            keyboardType ?? TextInputType.text, // Varsayılan metin tipi
+      
+        keyboardType: keyboardType ,
         decoration: InputDecoration(
           hintText: hintText,
           suffixText: suffixText,
