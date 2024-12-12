@@ -48,13 +48,18 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 ],
               ),
               SizedBox(height: 50),
-              ZiplamaAnimationWidget(
-                imagePath: 'assets/mylock.png', // Burada resmin yolunu veriyoruz
+              // ZiplamaAnimationWidget(
+              //   imagePath: 'assets/mylock.png', // Burada resmin yolunu veriyoruz
+              // ),
+              Image(
+                image: AssetImage("assets/lock.png"),
+                height: 250,
+                width: 250,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               const Center(
                 child: Text(
-                  "Şifresini unuttuğun e posta adresini aşağıya yazınız.",
+                  "Şifre sıfırlama talimatı almak için kayıtlı e-posta adresinizi aşağıya girin",
                   style: TextStyle(fontWeight: FontWeight.normal, color: Colors.grey, fontSize: 20),
                 ),
               ),

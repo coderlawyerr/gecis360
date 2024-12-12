@@ -149,3 +149,76 @@ class ForgotService {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import 'dart:convert';
+// import 'package:armiyaapp/model/cancelappointment.dart';
+// import 'package:armiyaapp/utils/constants.dart';
+// import 'package:http/http.dart' as http;
+
+// class CancaledAppointmentService {
+//   static Future<bool> CancaledAppointment(int randevuId) async {
+//     final url = Uri.parse('https://$apiBaseUrl/api/randevu/olustur/index.php');
+//     print("randevuıd:{$randevuId}");
+//     // API'ye gönderilecek veriler
+
+//     try {
+//       // POST isteği gönderme
+//       final response = await http.post(
+//         url,
+//         headers: <String, String>{
+//           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+//         },
+//         body: {
+//           'randevuiptalet': randevuId,
+//           'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as',
+//         },
+//       );
+
+//       print(response.body);
+//       print(randevuId);
+//       if (response.statusCode == 200) {
+//         final responseBody = json.decode(response.body);
+//         if (responseBody is Map<String, dynamic> && responseBody.containsKey('status')) {
+//           if (responseBody['S'] == true) {
+//             print('Başarılı: ${responseBody['message']}');
+//             return true;
+//           } else {
+//             print('Başarısız: ${responseBody['message']}');
+//             return false;
+//           }
+//         } else {
+//           // Düz metin kontrolü
+//           if (response.body == "SUREGECTI") {
+//             return false;
+//           } else if (response.body == "SUCCESS") {
+//             return true;
+//           } else {
+//             print('Bilinmeyen yanıt: ${response.body}');
+//             return false;
+//           }
+//         }
+//       } else {
+//         print('Hata: HTTP ${response.statusCode}');
+//         return false;
+//       }
+//     } catch (e) {
+//       print('Hata (Exception): $e');
+//       return false;
+//     }
+//   }
+// }

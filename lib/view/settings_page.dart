@@ -70,7 +70,7 @@ class _SettingPageState extends State<SettingPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => EditProfilPage()), // EditPage yönlendirme
+                              MaterialPageRoute(builder: (context) => const EditProfilPage()), // EditPage yönlendirme
                             );
                           },
                           child: Container(
@@ -80,10 +80,10 @@ class _SettingPageState extends State<SettingPage> {
                             ),
                             margin: const EdgeInsets.symmetric(horizontal: 20),
                             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                            child: Row(
+                            child: const Row(
                               children: [
-                                const Icon(Icons.edit, color: Colors.black),
-                                const SizedBox(width: 10),
+                                Icon(Icons.edit, color: Colors.black),
+                                SizedBox(width: 10),
                                 Text(
                                   "Profili Düzenle",
                                   style: TextStyle(
@@ -100,7 +100,7 @@ class _SettingPageState extends State<SettingPage> {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
                   Padding(

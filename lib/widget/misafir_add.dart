@@ -588,6 +588,7 @@ class _MisafirAddState extends State<MisafirAdd> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text("Misafir Ekleme"),
       ),
       body: SingleChildScrollView(
@@ -615,7 +616,7 @@ class _MisafirAddState extends State<MisafirAdd> {
           ),
           SizedBox(width: 10),
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 0),
             child: SizedBox(
               width: 85, // İstediğiniz genişlik
               height: 55, // İstediğiniz yükseklik

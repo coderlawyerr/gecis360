@@ -12,7 +12,6 @@ class Kullanicibilgisi {
   String? sessions;
   int? silinenleriGoster;
   
-  
   String? magictoken;
   
   

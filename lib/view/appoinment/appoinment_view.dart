@@ -433,43 +433,40 @@ class _AppointmentViewState extends State<AppointmentView> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10, left: 10),
-                      child: Row(
-                        children: [
-                          // Mevcut Randevu Kutusu
-                          Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFF5664D9)),
-                            ),
-                            child: Text(
-                              'Mevcut Randevu: ${provider.existingAppointments.where((r) => r.hizmetid == service.hizmetId).length}', // Current appointments count
-                              style: const TextStyle(fontSize: 14, color: Color(0xFF5664D9)),
+                    Row(
+                      children: [
+                        // Mevcut Randevu Kutusu
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF5664D9)),
+                          ),
+                          child: Text(
+                            'Mevcut Randevu: ${provider.existingAppointments.where((r) => r.hizmetid == service.hizmetId).length}', // Current appointments count
+                            style: const TextStyle(fontSize: 14, color: Color(0xFF5664D9)),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        // Kalan Randevu Kutusu
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF5664D9)),
+                          ),
+                          child: Text(
+                            'Kalan Randevu: ${service.saatlikKapasite ?? 'Bilinmiyor'}',
+                            style: const TextStyle(
+                              color: Color(0xFF5664D9),
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
-                          const SizedBox(height: 30),
-                          // Kalan Randevu Kutusu
-                          Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFF5664D9)),
-                            ),
-                            child: Text(
-                              'Kalan Randevu: ${service.saatlikKapasite ?? 'Bilinmiyor'}',
-                              style: const TextStyle(
-                                color: Color(0xFF5664D9),
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -520,49 +517,54 @@ class _AppointmentViewState extends State<AppointmentView> {
                         );
                       },
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: 15),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (isMisafirKabul && (selectedGroup == null))
-                          ElevatedButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.white,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                                ),
-                                builder: (context) {
-                                  return FractionallySizedBox(
-                                    heightFactor: 0.90, // Yüksekliğin 4/3 oranında açılması için
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                                      ),
-                                      child: const MisafirAdd(), // MisafirAdd sayfası burada modal olarak açılır
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF5664D9),
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        if (isMisafirKabul && (selectedGroup == null)) SizedBox(width: 2),
+
+                        ///soldan bosluk
+                        ElevatedButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                               ),
-                            ),
-                            child: const Text(
-                              'Misafir Ekle',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 15,
-                              ),
+                              builder: (context) {
+                                return FractionallySizedBox(
+                                  heightFactor: 0.90, // Yüksekliğin 4/3 oranında açılması için
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                                    ),
+                                    child: MisafirAdd(), // MisafirAdd sayfası burada modal olarak açılır
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF5664D9),
+                            padding: EdgeInsets.symmetric(horizontal: 0.1, vertical: 0.1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
+                          // Butonlar arasında boşluk
+                          child: Text(
+                            'Misafir Ekle',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.normal,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 6),
                         if (isGroup && selectedGroup == null)
                           Consumer<MisafirAddProvider>(
                             builder: (context, misafirProvider, child) => ElevatedButton(
@@ -619,6 +621,9 @@ class _AppointmentViewState extends State<AppointmentView> {
                             ),
                           ),
                       ],
+                    ),
+                    SizedBox(
+                      height: 10,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,

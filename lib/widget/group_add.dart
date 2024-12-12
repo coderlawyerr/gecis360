@@ -5,8 +5,7 @@ import 'package:armiyaapp/view/appoinment/appointment_calender/model/group_detai
 import 'package:flutter/material.dart';
 
 class GroupAdd extends StatefulWidget {
-  const GroupAdd({Key? key, required this.selectedServiceIds})
-      : super(key: key);
+  const GroupAdd({Key? key, required this.selectedServiceIds}) : super(key: key);
 
   final List<int> selectedServiceIds;
 
@@ -40,10 +39,7 @@ class _GroupAddState extends State<GroupAdd> {
 
       if (response != null && response.uyegruplari != null) {
         setState(() {
-          uyegruplari = response.uyegruplari!
-              .whereType<Uyegruplari>()
-              .where((group) => group != null)
-              .toList();
+          uyegruplari = response.uyegruplari!.whereType<Uyegruplari>().where((group) => group != null).toList();
           isLoading = false;
         });
       } else {
@@ -64,6 +60,7 @@ class _GroupAddState extends State<GroupAdd> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Grup Ekle'),
       ),
       body: _buildBody(),
@@ -162,8 +159,7 @@ class _GroupAddState extends State<GroupAdd> {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(12),

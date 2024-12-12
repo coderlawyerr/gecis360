@@ -1,13 +1,18 @@
 import 'dart:convert';
 
 import 'package:armiyaapp/data/app_shared_preference.dart';
+import 'package:armiyaapp/model/cancelappointment.dart';
 import 'package:armiyaapp/model/deneme.dart';
 import 'package:armiyaapp/model/hizmet_bilgisi.dart';
 import 'package:armiyaapp/model/kullanici_bilgisi.dart';
 import 'package:armiyaapp/model/tesisbilgisi.dart';
 import 'package:armiyaapp/model/usermodel.dart';
+import 'package:armiyaapp/providers/iptal_randevu_provider.dart';
+import 'package:armiyaapp/services/cancaled_appointment.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:armiyaapp/view/appoinment/appointment_calender/model/randevu_model.dart';
+import 'package:armiyaapp/view/canceled_appointment.dart';
+import 'package:armiyaapp/view/my_canceledappointment.dart';
 import 'package:flutter/material.dart';
 
 import 'package:armiyaapp/widget/appointmentcard.dart';
@@ -27,6 +32,7 @@ class ActiveAppointment extends StatefulWidget {
 class _ActiveAppointmentState extends State<ActiveAppointment> {
   UserModel? myusermodel;
   AppointmentProvider provider = AppointmentProvider();
+ late Future<List<RandevuModel>> randevular;
 
   late final Future<List<DenemeCard>?> cardim;
   List<RandevuModel>? aktifrandevular;
@@ -34,7 +40,7 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
   Hizmetbilgisi? hizmetbilgim;
   Tesisbilgisi? tesisbilgim;
   Map<int, DenemeCard> denemecardim = {};
-
+  List<RandevuModel> canceledAppointments = []; // İptal edilen randevular için liste
   getUser() async {
     myusermodel = await SharedDataService().getLoginData();
   }
@@ -151,6 +157,7 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
   void initState() {
     init();
     super.initState();
+    init();
   }
 
   init() async {
@@ -207,8 +214,20 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
                                   date: appointment.baslangicTarihi?.split(" ").first.toString() ?? "boş",
                                   startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
                                   endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
-                                  onButtonPressed: () {
-                                    // Randevuya tıklama işlemi
+                                  onButtonPressed: () async {
+                                    bool control = await CancaledAppointmentService.CancaledAppointment(aktifrandevular![index].randevuId!);
+                                    print("control :$control");
+                                    print("merhab");
+                                    if (control) {
+                                      // İptal edilen randevuyu provider'a ekle
+                                      var iptalRandevuProvider = Provider.of<IptalRandevuProvider>(context, listen: false);
+                                      iptalRandevuProvider.iptalEdilenRandevuEkle(Mycancelappointment(
+                                        randevuId: aktifrandevular![index].randevuId,
+                                        hizmetId: aktifrandevular![index].hizmetId,
+                                        // Diğer alanlar...
+                                      ));
+                                    }
+                                    setState(() {});
                                   },
                                 );
                               } else {

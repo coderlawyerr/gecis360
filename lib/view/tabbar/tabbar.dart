@@ -1,5 +1,6 @@
 import 'package:armiyaapp/view/active_appointments.dart';
 import 'package:armiyaapp/view/canceled_appointment.dart';
+import 'package:armiyaapp/view/iptaledilenrandevu.dart';
 import 'package:armiyaapp/view/past_appointments.dart';
 import 'package:flutter/material.dart';
 
@@ -43,7 +44,7 @@ class MyTabbar extends StatelessWidget {
                   children: [
                     ActiveAppointment(), // Aktif randevular sayfası
                     PassAppointment(), // Geçmiş randevular sayfası
-                    CanceledAppointment(), // İptal edilen randevular sayfası
+                    Iptaledilenrandevu(), // İptal edilen randevular sayfası
                   ],
                 ),
               ),

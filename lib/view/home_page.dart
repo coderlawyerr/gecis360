@@ -5,7 +5,7 @@ import 'package:armiyaapp/services/markaHelper.dart';
 
 import 'package:armiyaapp/view/appoinment/appoinment_view.dart';
 
-import 'package:armiyaapp/view/qr_page.dart';
+
 import 'package:armiyaapp/view/settings_page.dart';
 import 'package:armiyaapp/view/tabbar/tabbar.dart';
 import 'package:armiyaapp/view/login.dart';
@@ -53,11 +53,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // @override
-  // void initState() {
-  //   getUserData();
-  //   super.initState();
-  // }
 
   // Her sekme için ilgili sayfa widget'ını döndüren fonksiyon
   Widget getSelectedPage(int index) {
