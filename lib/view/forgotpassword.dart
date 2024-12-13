@@ -1,6 +1,6 @@
 import 'package:armiyaapp/const/const.dart';
 import 'package:armiyaapp/services/forgot_service.dart';
-import 'package:armiyaapp/widget/an%C4%B1masyonw%C4%B1dget.dart';
+import 'package:armiyaapp/widget/animasyonwidget.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -18,9 +18,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 20, right: 20), // padding'i yukarıdan 70'ten 20'ye düşürdüm
+      body: Padding(
+        padding: const EdgeInsets.only(top: 45, right: 20, left: 20),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -53,13 +53,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               // ),
               Image(
                 image: AssetImage("assets/lock.png"),
-                height: 250,
-                width: 250,
+                height: 180,
+                width: 200,
               ),
               SizedBox(height: 20),
               const Center(
                 child: Text(
-                  "Şifre sıfırlama talimatı almak için kayıtlı e-posta adresinizi aşağıya girin",
+                  "Aşağıdaki formdan e-posta adresinize bir şifre sıfırlama bağlantısı gönderebilirsiniz.",
                   style: TextStyle(fontWeight: FontWeight.normal, color: Colors.grey, fontSize: 20),
                 ),
               ),

@@ -24,17 +24,17 @@ class MyTabbar extends StatelessWidget {
                 tabs: [
                   Tab(
                     icon: Icon(Icons.calendar_today),
-                   
+
                     text: 'Aktif Randevular', // Aktif randevu sekmesi
                   ),
                   Tab(
                     icon: Icon(Icons.block),
-                  
+
                     text: 'Geçmiş Randevular', // Geçmiş randevu sekmesi
                   ),
                   Tab(
                     icon: Icon(Icons.history),
-                    
+
                     text: 'İptal Edilen Randevular', // İptal edilen randevu sekmesi
                   ),
                 ],
@@ -44,7 +44,7 @@ class MyTabbar extends StatelessWidget {
                   children: [
                     ActiveAppointment(), // Aktif randevular sayfası
                     PassAppointment(), // Geçmiş randevular sayfası
-                    Iptaledilenrandevu(), // İptal edilen randevular sayfası
+                    CanceledAppointment(), // İptal edilen randevular sayfası
                   ],
                 ),
               ),

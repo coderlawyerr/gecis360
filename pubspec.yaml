@@ -63,6 +63,7 @@ dependencies:
   json_response: ^1.0.2
   horizontal_data_table: ^4.3.1
   flutter_expandable_table: ^2.1.0
+  expandable_datatable: ^0.0.7
   
   
 

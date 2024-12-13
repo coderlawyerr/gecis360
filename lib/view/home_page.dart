@@ -5,10 +5,10 @@ import 'package:armiyaapp/services/markaHelper.dart';
 
 import 'package:armiyaapp/view/appoinment/appoinment_view.dart';
 
-
 import 'package:armiyaapp/view/settings_page.dart';
 import 'package:armiyaapp/view/tabbar/tabbar.dart';
 import 'package:armiyaapp/view/login.dart';
+import 'package:armiyaapp/widget/table.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:armiyaapp/const/const.dart';
@@ -53,7 +53,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
   // Her sekme için ilgili sayfa widget'ını döndüren fonksiyon
   Widget getSelectedPage(int index) {
     switch (index) {
@@ -65,6 +64,8 @@ class _HomePageState extends State<HomePage> {
         return PrettyQrHomePage(); // QR Kod
       case 3:
         return SettingPage();
+      case 4:
+        return StaticTablePage(); //kayit
       default:
         return MyTabbar(); // Varsayılan sayfa
     }
@@ -138,6 +139,7 @@ class _HomePageState extends State<HomePage> {
           Icon(Icons.add, size: 30, color: Colors.white), // Randevu Oluştur
           Icon(Icons.qr_code, size: 30, color: Colors.white), // QR Kod
           Icon(Icons.tune, size: 30, color: Colors.white), // Çıkış
+          Icon(Icons.book_online_outlined, size: 30, color: Colors.white), //kayıt
         ],
         color: primaryColor,
         buttonBackgroundColor: primaryColor,

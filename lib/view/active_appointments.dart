@@ -12,7 +12,6 @@ import 'package:armiyaapp/services/cancaled_appointment.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:armiyaapp/view/appoinment/appointment_calender/model/randevu_model.dart';
 import 'package:armiyaapp/view/canceled_appointment.dart';
-import 'package:armiyaapp/view/iptaledilenrandevu.dart';
 import 'package:armiyaapp/view/my_canceledappointment.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +32,6 @@ class ActiveAppointment extends StatefulWidget {
 class _ActiveAppointmentState extends State<ActiveAppointment> {
   UserModel? myusermodel;
   AppointmentProvider provider = AppointmentProvider();
- late Future<List<RandevuModel>> randevular;
 
   late final Future<List<DenemeCard>?> cardim;
   List<RandevuModel>? aktifrandevular;
@@ -227,15 +225,7 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
                                         hizmetId: aktifrandevular![index].hizmetId,
                                         // Diğer alanlar...
                                       ));
-                                      // İptal edilen randevular sayfasına yönlendir
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Iptaledilenrandevu()),
-          );
-        }
-        setState(() {});
-      
-                                    
+                                    }
                                     setState(() {});
                                   },
                                 );

@@ -505,55 +505,62 @@ class AppointmentProvider with ChangeNotifier {
   }
 
   void selectTimeSlot(DateTime timeSlot, int serviceId) {
-    _existingAppointments.clear();
-    // Öncelikle hizmetin saatlik kapasitesini kontrol edin
+    // Check the service's hourly capacity
     Bilgi? service = _selectedServices.firstWhere((s) => s.hizmetId == serviceId);
 
+    // If the service has no capacity or is a special area, the appointment cannot be booked
     if (service.saatlikKapasite == 0 || service.ozelalan == 1) {
-      // Bu hizmet için randevu alınamaz
-      return;
-      // Seçilen saat dilimini işleme al
-      // ignore: dead_code
-      String formattedTime = DateFormat('HH:mm').format(timeSlot);
-      // Slot rengini değiştirme
-      slotColors[formattedTime] = Colors.blue.shade100; // Müsait olarak ayarla
-      notifyListeners();
+      return; // Appointment cannot be booked
     }
 
-    // Burada randevu oluşturma işlemini gerçekleştirin
+    // Process the selected time slot
     String formattedTime = DateFormat('HH:mm').format(timeSlot);
+    String formattedDate = DateFormat('dd.MM.yyyy').format(timeSlot);
+
+    // Create the appointment
     Randevu newAppointment = Randevu(
       baslangictarihi: timeSlot,
       bitistarihi: timeSlot.add(Duration(minutes: _servicePeriyots[serviceId]!)),
-      formatlibaslangictarihi: DateFormat('dd.MM.yyyy').format(timeSlot),
-      formatlibitistarihi: DateFormat('dd.MM.yyyy').format(timeSlot.add(Duration(minutes: _servicePeriyots[serviceId]!))),
+      formatlibaslangictarihi: formattedDate,
+      formatlibitistarihi: formattedDate,
       baslangicsaati: formattedTime,
       bitissaati: DateFormat('HH:mm').format(timeSlot.add(Duration(minutes: _servicePeriyots[serviceId]!))),
       kullaniciid: currentUserId,
       hizmetid: serviceId,
-      hizmetad: _selectedServices.firstWhere((s) => s.hizmetId == serviceId).hizmetAd,
-      kapasite: _selectedServices.firstWhere((s) => s.hizmetId == serviceId).saatlikKapasite,
+      hizmetad: service.hizmetAd,
+      kapasite: service.saatlikKapasite,
     );
 
+    // Add the new appointment to existing appointments
     _existingAppointments.add(newAppointment);
 
-    // Seçilen saat dilimini diğer hizmetlerde gri yap
+    // Set the selected time slot to green
+    slotColors[formattedTime] = Colors.green;
+
+    // Set all other services' time slots on the same date and time to yellow
     _selectedServices.forEach((otherService) {
       if (otherService.hizmetId != serviceId) {
         List<DateTime> otherServiceSlots = _serviceTimeSlots[otherService.hizmetId!] ?? [];
         for (var slot in otherServiceSlots) {
-          if (slot.isAtSameMomentAs(timeSlot)) {
-            slotColors[formattedTime] = Colors.grey; // Diğer saat dilimlerini gri yap
+          String otherFormattedTime = DateFormat('HH:mm').format(slot);
+          String otherFormattedDate = DateFormat('dd.MM.yyyy').format(slot);
+          if (slot.isAtSameMomentAs(timeSlot) && otherFormattedDate == formattedDate) {
+            // Set the same time slot for other services to yellow and make them unclickable
+            slotColors[otherFormattedTime] = Colors.yellow;
+            // Optionally, you can add logic to disable these slots
           }
         }
       }
     });
 
-    // Onaylanan saat dilimini yeşil yap
-    slotColors[formattedTime] = Colors.green;
+    // kapasiteyi azaltma
+    if (service.saatlikKapasite != null && service.saatlikKapasite! > 0) {
+      service.saatlikKapasite = service.saatlikKapasite! - 1; // Decrease capacity
+    }
 
-    generateTimeSlots(); // Saat dilimlerini yeniden oluştur
-    notifyListeners();
+    // Regenerate time slots
+    generateTimeSlots(); // Regenerate time slots
+    notifyListeners(); // Notify listeners
   }
 
   void confirmTimeSlot(DateTime timeSlot) {
