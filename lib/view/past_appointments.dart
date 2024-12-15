@@ -8,6 +8,7 @@ import 'package:armiyaapp/model/tesisbilgisi.dart';
 import 'package:armiyaapp/model/usermodel.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:armiyaapp/widget/appointmentcard.dart';
+import 'package:armiyaapp/widget/uyari_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -123,58 +124,60 @@ class _CanceledAppointment extends State<PassAppointment> {
             SizedBox(
               height: 10,
             ),
-            Expanded(
-              child: FutureBuilder<List<PassiveModel>?>(
-                future: fetchpassivelist4,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Hata: ${snapshot.error}'));
-                  } else if (snapshot.hasData) {
-                    final data = snapshot.data!;
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        final appointment = data[index];
-                        return FutureBuilder<DenemeCard?>(
-                            future: deneme(appointment: appointment),
-                            builder: (context, snapshot2) {
-                              if (snapshot2.connectionState == ConnectionState.waiting) {
-                                return Center(
-                                    child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: CircularProgressIndicator(),
-                                ));
-                              } else if (snapshot2.hasError) {
-                                return Center(child: Text('Hata: ${snapshot2.error}'));
-                              } else if (snapshot2.hasData) {
-                                final data2 = snapshot2.data!;
-                                final bet = data2;
+            FutureBuilder<List<PassiveModel>?>(
+              future: fetchpassivelist4,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Hata: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  final data = snapshot.data!;
+                  return data.isEmpty
+                      ? GecmisRandevuCard()
+                      : Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: data.length,
+                            itemBuilder: (context, index) {
+                              final appointment = data[index];
+                              return FutureBuilder<DenemeCard?>(
+                                  future: deneme(appointment: appointment),
+                                  builder: (context, snapshot2) {
+                                    if (snapshot2.connectionState == ConnectionState.waiting) {
+                                      return Center(
+                                          child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: CircularProgressIndicator(),
+                                      ));
+                                    } else if (snapshot2.hasError) {
+                                      return Center(child: Text('Hata: ${snapshot2.error}'));
+                                    } else if (snapshot2.hasData) {
+                                      final data2 = snapshot2.data!;
+                                      final bet = data2;
 
-                                return AppointmentCard(
-                                  buttonText: "Geçmiş Randevular",
-                                  title: bet.tesisbilgisimodel?.tesisAd ?? "",
-                                  subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
-                                  date: appointment.timestamp?.split(" ").first.toString() ?? "",
-                                  startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
-                                  endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
-                                  onButtonPressed: () {
-                                    // Randevuya tıklama işlemi
-                                  },
-                                );
-                              } else {
-                                return Center(child: Text('Veri bulunamadı'));
-                              }
-                            });
-                      },
-                    );
-                  } else {
-                    return Center(child: Text('Veri bulunamadı'));
-                  }
-                },
-              ),
+                                      return AppointmentCard(
+                                        buttonText: "Geçmiş Randevular",
+                                        title: bet.tesisbilgisimodel?.tesisAd ?? "",
+                                        subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
+                                        date: appointment.timestamp?.split(" ").first.toString() ?? "",
+                                        startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
+                                        endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
+                                        onButtonPressed: () {
+                                          // Randevuya tıklama işlemi
+                                        },
+                                      );
+                                    } else {
+                                      return Center(child: Text('Veri bulunamadı'));
+                                    }
+                                  });
+                            },
+                          ),
+                        );
+                } else {
+                  return Center(child: Text('Veri bulunamadı'));
+                }
+              },
             ),
           ],
         ),

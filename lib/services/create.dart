@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,7 +20,7 @@ Future<String?> createAppointment({
     headers: {
       'Authorization': 'Basic $authorization',
       'PHPSESSID': phpSessionId,
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: {
       'randevuekle': '1',
@@ -28,9 +29,19 @@ Future<String?> createAppointment({
       'hizmetid': hizmetId,
       'tesisid': tesisId,
       'baslangictarihi': baslangicTarihi,
-      'bitistarihi': bitisTarihi,
+      'bitistarihi': bitisTarihi
     },
   );
+
+  log({
+    'randevuekle': '1',
+    'kullanici_id': kullaniciId,
+    'token': token,
+    'hizmetid': hizmetId,
+    'tesisid': tesisId,
+    'baslangictarihi': baslangicTarihi,
+    'bitistarihi': bitisTarihi,
+  }.toString());
 
   if (response.statusCode == 200) {
     // Başarılı yanıt

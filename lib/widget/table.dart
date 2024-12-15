@@ -12,7 +12,7 @@ class StaticTablePage extends StatefulWidget {
 
 class _StaticTablePageState extends State<StaticTablePage> {
   int _currentPage = 0;
-  final int _rowsPerPage = 2;
+  final int _rowsPerPage = 10;
   List<kayit> _data = [];
 
   // Servisi çağırarak veri çekme
@@ -44,6 +44,7 @@ class _StaticTablePageState extends State<StaticTablePage> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 70, left: 5, right: 5),
@@ -56,54 +57,53 @@ class _StaticTablePageState extends State<StaticTablePage> {
             SizedBox(
               height: 10,
             ),
-            Expanded(
-              child: Card(
+            Container(
+              padding: EdgeInsets.only(top: 25),
+              height: height / 2,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
                 color: Color.fromARGB(255, 203, 198, 198),
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                       child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: DataTable(
-                            columns: const [
-                              DataColumn(label: Text('Hizmet')),
-                              DataColumn(label: Text('Üye')),
-                              DataColumn(label: Text('Giriş Saati')),
-                              DataColumn(label: Text('Çıkış Saati')),
-                              DataColumn(label: Text('Geçirilen Süre')),
-                              DataColumn(label: Text('Durum')),
-                            ],
-                            rows: _getCurrentPageData().map<DataRow>((data) {
-                              return DataRow(cells: [
-                                DataCell(Text(data.hizmetAd ?? "")),
-                                DataCell(Text(data.kullaniciIsimsoyisim ?? "")),
-                                DataCell(Text(data.girisTarihi ?? "")),
-                                DataCell(Text(data.cikisTarihi ?? "")),
-                                DataCell(Text(data.gecirilenSure ?? "")),
-                                DataCell(Text(data.gecirilenSureRenk ?? "")),
-                              ]);
-                            }).toList(),
-                          ),
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          columns: const [
+                            DataColumn(label: Text('Hizmet')),
+                            DataColumn(label: Text('Üye')),
+                            DataColumn(label: Text('Giriş Saati')),
+                            DataColumn(label: Text('Çıkış Saati')),
+                            DataColumn(label: Text('Geçirilen Süre')),
+                            DataColumn(label: Text('Durum')),
+                          ],
+                          rows: _getCurrentPageData().map<DataRow>((data) {
+                            return DataRow(cells: [
+                              DataCell(Text(data.hizmetAd ?? "")),
+                              DataCell(Text(data.kullaniciIsimsoyisim ?? "")),
+                              DataCell(Text(data.girisTarihi ?? "")),
+                              DataCell(Text(data.cikisTarihi ?? "")),
+                              DataCell(Text(data.gecirilenSure ?? "")),
+                              DataCell(Text(data.gecirilenSureRenk ?? "")),
+                            ]);
+                          }).toList(),
                         ),
                       ),
                     ),
-                    SizedBox(height: 2),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.more_horiz,
-                        color: Colors.grey,
-                        size: 60,
-                      ),
+                  ),
+                  SizedBox(height: 2),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.more_horiz,
+                      color: Colors.grey,
+                      size: 60,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 10),

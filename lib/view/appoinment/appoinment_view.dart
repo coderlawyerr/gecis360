@@ -3,6 +3,7 @@ import 'dart:convert' as http;
 import 'package:armiyaapp/data/app_shared_preference.dart';
 import 'package:armiyaapp/providers/appoinment/misafir_add_provider.dart';
 import 'package:armiyaapp/services/create.dart';
+import 'package:armiyaapp/view/appoinment/appointment_calender/model/randevu_model.dart';
 
 import 'package:armiyaapp/widget/group_add.dart';
 import 'package:armiyaapp/widget/misafir_add.dart';
@@ -18,6 +19,8 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 
 import 'appointment_calender/model/group_details.model.dart' as GroupDetailsModel;
 
+const double _ekleSheetHeightFactor = 0.50;
+
 class AppointmentView extends StatefulWidget {
   const AppointmentView({super.key});
 
@@ -28,6 +31,15 @@ class AppointmentView extends StatefulWidget {
 class _AppointmentViewState extends State<AppointmentView> {
   int? selectedTesisID;
   int? selectedHizmetID;
+
+
+  /// If user has appointment in same day it returns true
+  bool alreadyBooked(List<RandevuModel> allAppointments, DateTime selectedDate) => allAppointments.any((element) {
+        final elementStartTime = DateTime.tryParse(element.baslangicTarihi!);
+        return selectedDate.month == elementStartTime!.month &&
+            selectedDate.day == elementStartTime.day &&
+            selectedDate.year == elementStartTime.year;
+      });
 
   @override
   void initState() {
@@ -63,37 +75,33 @@ class _AppointmentViewState extends State<AppointmentView> {
                   children: [
                     const Text(
                       'RANDEVU OLUŞTUR',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal, color: Colors.grey),
                     ),
                     const SizedBox(height: 15),
-                    const Text(
-                      'Tesis Seçimi',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
+                    const Text('Tesis Seçimi', style: TextStyle(fontSize: 16, color: Colors.grey)),
                     const SizedBox(height: 10),
                     // 1. Tesis Seçimi Dropdown/// burda apıye ıstek atıyorum teısıs ıcın
                     Container(
                       margin: const EdgeInsets.all(3),
                       padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: const BorderRadius.all(Radius.circular(4))),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: const BorderRadius.all(Radius.circular(4))),
                       child: DropdownButton<int>(
                         underline: const SizedBox(),
                         hint: const Text(
                           'Tesis Seçiniz',
                           style: TextStyle(color: Colors.grey),
                         ),
-                        value: provider.selectedFacilityId, // hayır api ile ilgili değil
+                        value: provider.selectedFacilityId,
+                        // hayır api ile ilgili değil
                         isExpanded: true,
-                        items: provider.facilities.map((facility) {
-                          return DropdownMenuItem<int>(
-                            value: facility.tesisId,
-                            child: Text(facility.tesisAd ?? 'Bilinmeyen Tesis'),
-                          );
-                        }).toList(),
+                        items: provider.facilities
+                            .map((facility) => DropdownMenuItem<int>(
+                                  value: facility.tesisId,
+                                  child: Text(facility.tesisAd ?? 'Bilinmeyen Tesis'),
+                                ))
+                            .toList(),
                         onChanged: (value) async {
                           selectedTesisID = value;
                           provider.setSelectedDate(null);
@@ -123,19 +131,15 @@ class _AppointmentViewState extends State<AppointmentView> {
                     ),
                     const SizedBox(height: 20),
                     // 2. Hizmet Seçimi (MultiDropdown)
-                    const Text(
-                      "Hizmet Seçimi",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-
+                    const Text("Hizmet Seçimi", style: TextStyle(fontSize: 16, color: Colors.grey)),
                     MultiDropdown(
                       fieldDecoration: const FieldDecoration(hintText: "Hizmet Seçiniz!"),
-                      items: provider.services.map((service) {
-                        return DropdownItem<int>(
-                          value: service.hizmetId!,
-                          label: service.hizmetAd ?? 'Bilinmeyen Hizmet',
-                        );
-                      }).toList(),
+                      items: provider.services
+                          .map((service) => DropdownItem<int>(
+                                value: service.hizmetId!,
+                                label: service.hizmetAd ?? 'Bilinmeyen Hizmet',
+                              ))
+                          .toList(),
                       onSelectionChange: (List<int> selectedIds) async {
                         provider.resetToCalendar();
                         provider.setSelectedServices(selectedIds);
@@ -170,38 +174,30 @@ class _AppointmentViewState extends State<AppointmentView> {
 
                     const SizedBox(height: 20),
                     // Takvim
-                    Visibility(
-                      visible: provider.showCalendar,
-                      child: Column(
+                    if (provider.showCalendar)
+                      Column(
                         children: [
                           // Takvim Kontrolleri
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () {
-                                  provider.calendarController.backward!();
-                                },
+                                onPressed: () => provider.calendarController.backward!(),
                                 icon: const Icon(Icons.arrow_back_ios_new),
                               ),
                               IconButton(
-                                onPressed: () {
-                                  provider.calendarController.forward!();
-                                },
+                                onPressed: () => provider.calendarController.forward!(),
                                 icon: const Icon(Icons.arrow_forward_ios_sharp),
                               ),
                               ElevatedButton(
-                                onPressed: () {
-                                  provider.calendarController.displayDate = DateTime.now();
-                                },
+                                onPressed: () => provider.calendarController.displayDate = DateTime.now(),
                                 child: const Text('Bugün'),
                               ),
                             ],
                           ),
                           // Takvim
-                          provider.buildCalendar(context),
+                          provider.buildCalendar(context)
                         ],
                       ),
-                    ),
                     const SizedBox(height: 20),
 
                     // Saat Dilimleri
@@ -212,59 +208,31 @@ class _AppointmentViewState extends State<AppointmentView> {
                         children: [
                           const Text(
                             'Randevu Saati Seçimi',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
-
-                          const Text(
-                            'Mavi : Randevu eklenebilir',
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          const Text(
-                            'Kırmızı : Kapasite dolu',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          const Text(
-                            'Yeşil: Kayıtlı randevunuz',
-                            style: TextStyle(color: Colors.green),
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          const Text(
-                            'Sarı: Aynı saatte randevunuz var',
-                            style: TextStyle(color: Colors.yellow),
-                          ),
+                          const Text('Mavi : Randevu eklenebilir', style: TextStyle(color: Colors.blue)),
+                          const SizedBox(height: 2),
+                          const Text('Kırmızı : Kapasite dolu', style: TextStyle(color: Colors.red)),
+                          const SizedBox(height: 2),
+                          const Text('Yeşil: Kayıtlı randevunuz', style: TextStyle(color: Colors.green)),
+                          const SizedBox(height: 2),
+                          const Text('Sarı: Aynı saatte randevunuz var', style: TextStyle(color: Colors.yellow)),
                           const SizedBox(height: 10),
                           // Takvime Dön Butonu
                           Align(
                             alignment: Alignment.topRight,
                             child: ElevatedButton(
-                              onPressed: () {
-                                provider.backToCalendar(); // Takvimi geri getir
-                              },
+                              onPressed: () => provider.backToCalendar(),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF5664D9), // Butonun arka plan rengi
+                                backgroundColor: const Color(0xFF5664D9),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: const Text(
-                                'Takvime Dön',
-                                style: TextStyle(color: Colors.white),
-                              ),
+                              child: const Text('Takvime Dön', style: TextStyle(color: Colors.white)),
                             ),
                           ),
-
                           // Saat Dilimlerini Listele (Her Hizmet için)
                           ListView.builder(
                             shrinkWrap: true,
@@ -273,19 +241,15 @@ class _AppointmentViewState extends State<AppointmentView> {
                             itemBuilder: (context, serviceIndex) {
                               final service = provider.selectedServices[serviceIndex];
                               final serviceId = service.hizmetId!;
-                              final serviceSlots = provider.serviceTimeSlots[serviceId] ?? []; // saat aralıkları apıden geliyor
-
-                              // Renk haritasını al
-                              final colorMap = provider.kontrolEt(serviceId);
+                              final serviceSlots = provider.serviceTimeSlots[serviceId] ?? [];
+                              // saat aralıkları apıden geliyor
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Hizmet Adı ve Kapasite Bilgisi
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
                                     child: Text(service.hizmetAd ?? ""),
                                   ),
                                   // Saat Dilimleri
@@ -307,55 +271,92 @@ class _AppointmentViewState extends State<AppointmentView> {
                                             final bitisSaati = timeSlot.add(Duration(minutes: periyot));
                                             final formattedStartTime = DateFormat('HH:mm').format(timeSlot);
                                             final formattedEndTime = DateFormat('HH:mm').format(bitisSaati);
+                                            final bool isPast = timeSlot.isBefore(DateTime.now());
 
-                                            // Onaylanan saat kontrolü
-                                            bool isDisabled = provider.kontrolEt(serviceId).values.any((c) => c.value == Colors.green.value) &&
-                                                provider.slotColors[formattedStartTime]?.value !=
-                                                    Colors.green.value; // Eğer başka bir saat onaylandıysa, diğer saatleri devre dışı bırak
-                                            // Geçmiş saat dilimlerini kontrol et
-                                            bool isPast = timeSlot.isBefore(DateTime.now());
+                                            bool isConflictedWithOtherService = provider.allAppointments.any((element) {
+                                              final elementStartTime = DateTime.tryParse(element.baslangicTarihi!);
+                                              final elementEndTime = DateTime.tryParse(element.bitisTarihi!);
+                                              return element.tesisId != selectedTesisID &&
+                                                  (timeSlot.isBefore(elementEndTime!) &&
+                                                      bitisSaati.isAfter(elementStartTime!));
+                                            });
 
-                                            // Renk haritasına göre rengi belirle
-                                            // Renk haritasına göre rengi belirle
-                                            var slotColor = provider.slotColors[formattedStartTime] ?? Colors.blue.shade100;
-                                            if (isDisabled) slotColor = Colors.grey;
+                                            bool alreadyBooked = provider.allAppointments.any((element) {
+                                              final elementStartTime = DateTime.tryParse(element.baslangicTarihi!);
+                                              final elementEndTime = DateTime.tryParse(element.bitisTarihi!);
+                                              return element.tesisId == selectedTesisID &&
+                                                  (timeSlot.isBefore(elementEndTime!) &&
+                                                      bitisSaati.isAfter(elementStartTime!));
+                                            });
+
+                                            Color chipColor;
+                                            if (isPast) {
+                                              // Geçmiş saatler
+                                              chipColor = Colors.grey;
+                                            } else if (isConflictedWithOtherService) {
+                                              //Farkli tesiste ayni saatte randevu varsa
+                                              chipColor = Colors.yellow;
+                                            } else if (alreadyBooked) {
+                                              //Ayni tesiste ayni saatte randevu varsa
+                                              chipColor = Colors.green;
+                                            } else {
+                                              //Varsilan Renk
+                                              chipColor = Colors.blue;
+                                            }
+
+                                            bool isDisabled = provider
+                                                    .kontrolEt(serviceId)
+                                                    .values
+                                                    .any((c) => c.value == Colors.green.value) &&
+                                                provider.slotColors[formattedStartTime]?.value != Colors.green.value;
+
                                             print('Seçili mi?? $isDisabled');
 
                                             return Opacity(
                                               opacity: isPast ? 0.5 : 1.0,
                                               child: GestureDetector(
-                                                ///////////////
-                                                onTap: isPast || slotColor == Colors.green || slotColor == Colors.red || slotColor == Colors.grey
-                                                    ? null // Geçmiş saatler, kullanıcı tarafından alınmış ve başkaları tarafından alınmış saatler için tıklamayı devre dışı bırak
-                                                    : () {
-                                                        //
-                                                        provider.selectTimeSlot(timeSlot, serviceId);
-                                                        if (provider.serviceTimeSlots.containsValue([timeSlot])) {
-                                                          return;
-                                                        }
+                                                onTap: () {
 
-                                                        // Saat dilimi seçimini işleme
-                                                        provider.selectTimeSlot(timeSlot, serviceId);
+                                                  if (this.alreadyBooked(provider.allAppointments,
+                                                      provider.calendarController.selectedDate ?? DateTime.now())) {
+                                                    return;
+                                                  }
+                                                  if (isPast ||
+                                                      chipColor == Colors.yellow ||
+                                                      chipColor == Colors.green ||
+                                                      chipColor == Colors.red ||
+                                                      chipColor == Colors.grey) return;
 
-                                                        ////////////////////////////////////////////////dıalog acccc
-                                                        showAppointmentDialog(context, isDisabled, timeSlot, service, serviceIndex, slotIndex);
-                                                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                                      },
+                                                  if (provider.serviceTimeSlots.containsValue([timeSlot])) {
+                                                    return;
+                                                  }
+                                                  // Saat dilimi seçimini işleme
+
+                                                  ////////////////////////////////////////////////dıalog acccc
+                                                  showAppointmentDialog(
+                                                    context,
+                                                    isDisabled,
+                                                    timeSlot,
+                                                    service,
+                                                    serviceIndex,
+                                                    slotIndex,
+                                                    timeSlot,
+                                                    serviceId,
+                                                  );
+                                                  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                },
                                                 child: Chip(
                                                   label: Row(
                                                     mainAxisSize: MainAxisSize.min,
                                                     children: [
                                                       Text(
                                                         '$formattedStartTime - $formattedEndTime',
-                                                        style: const TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 12,
-                                                        ),
+                                                        style: const TextStyle(color: Colors.black, fontSize: 12),
                                                       ),
                                                       // Ekstra göstergeler eklemek isterseniz burada yapabilirsiniz
                                                     ],
                                                   ),
-                                                  backgroundColor: slotColor,
+                                                  backgroundColor: chipColor,
                                                 ),
                                               ),
                                             );
@@ -384,7 +385,16 @@ class _AppointmentViewState extends State<AppointmentView> {
     );
   }
 
-  void showAppointmentDialog(BuildContext context, bool isDisabled, DateTime selectedTime, Bilgi service, int serviceIndex, int slotIndex) async {
+  void showAppointmentDialog(
+    BuildContext context,
+    bool isDisabled,
+    DateTime selectedTime,
+    Bilgi service,
+    int serviceIndex,
+    int slotIndex,
+    DateTime timeSlot,
+    int serviceId,
+  ) async {
     final provider = Provider.of<AppointmentProvider>(context, listen: false);
     bool isConfirmed = false; // Randevunun onaylandığını izlemek için
     GroupDetailsModel.Uyegruplari? selectedGroup; // Seçilen grup ID'sini saklamak için
@@ -394,7 +404,9 @@ class _AppointmentViewState extends State<AppointmentView> {
         ? provider.facilities.firstWhere((f) => f.tesisId == provider.selectedFacilityId).tesisAd ?? 'Bilinmeyen Tesis'
         : 'Tesis Seçilmedi';
 
-    String selectedService = provider.selectedServiceIds.isNotEmpty ? provider.selectedServices.map((s) => s.hizmetAd).join(', ') : 'Hizmet Seçilmedi';
+    String selectedService = provider.selectedServiceIds.isNotEmpty
+        ? provider.selectedServices.map((s) => s.hizmetAd).join(', ')
+        : 'Hizmet Seçilmedi';
 
     // Seçilen zaman dilimini belirleyin
     final periyot = provider.servicePeriyots[service.hizmetId]!; // Hizmetin periyodunu al
@@ -410,7 +422,8 @@ class _AppointmentViewState extends State<AppointmentView> {
 
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Bu, modalın tam ekran olmasını sağlar.
+      isScrollControlled: true,
+      // Bu, modalın tam ekran olmasını sağlar.
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -536,7 +549,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                               ),
                               builder: (context) {
                                 return FractionallySizedBox(
-                                  heightFactor: 0.90, // Yüksekliğin 4/3 oranında açılması için
+                                  heightFactor: _ekleSheetHeightFactor,
                                   child: Padding(
                                     padding: EdgeInsets.only(
                                       bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -585,7 +598,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                         ),
                                         builder: (context) {
                                           return FractionallySizedBox(
-                                            heightFactor: 0.90,
+                                            heightFactor: _ekleSheetHeightFactor,
                                             child: Padding(
                                               padding: EdgeInsets.only(
                                                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -605,7 +618,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: misafirProvider.misafirList.isNotEmpty ? Colors.grey : const Color(0xFF5664D9),
+                                backgroundColor:
+                                    misafirProvider.misafirList.isNotEmpty ? Colors.grey : const Color(0xFF5664D9),
                                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -622,9 +636,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                           ),
                       ],
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -635,13 +647,20 @@ class _AppointmentViewState extends State<AppointmentView> {
                                   final user = await SharedDataService().getLoginData();
                                   // Randevu bilgilerini gönder
                                   final res = await createAppointment(
-                                    authorization: 'cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=', // Authorization bilgisi
-                                    phpSessionId: '0ms1fk84dssk9s3mtfmmdsjq24', // PHPSESSID
-                                    kullaniciId: user?.iD?.toString() ?? "", // Kullanıcı ID
-                                    token: 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', // Token
-                                    hizmetId: selectedHizmetID.toString(), //"25" // Hizmet ID
-                                    tesisId: selectedTesisID.toString(), // '1', // Tesis ID
-                                    baslangicTarihi: selectedTime.toString().replaceAll("T", " "), // Başlangıç tarihi
+                                    authorization: 'cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=',
+                                    // Authorization bilgisi
+                                    phpSessionId: '0ms1fk84dssk9s3mtfmmdsjq24',
+                                    // PHPSESSID
+                                    kullaniciId: user?.iD?.toString() ?? "",
+                                    // Kullanıcı ID
+                                    token: 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as',
+                                    // Token
+                                    hizmetId: selectedHizmetID.toString(),
+                                    //"25" // Hizmet ID
+                                    tesisId: selectedTesisID.toString(),
+                                    // '1', // Tesis ID
+                                    baslangicTarihi: selectedTime.toString().replaceAll("T", " "),
+                                    // Başlangıç tarihi
                                     bitisTarihi: endTime.toString().replaceAll("T", " "),
                                   );
 
@@ -651,7 +670,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                                     // Kalan randevu sayısını azalt
                                     if (service.saatlikKapasite != null && service.saatlikKapasite! > 0) {
                                       setState(() {
-                                        service.saatlikKapasite = service.saatlikKapasite! - 1; // Kalan randevu sayısını bir azalt
+                                        service.saatlikKapasite =
+                                            service.saatlikKapasite! - 1; // Kalan randevu sayısını bir azalt
                                       });
                                     }
 
@@ -676,9 +696,11 @@ class _AppointmentViewState extends State<AppointmentView> {
                                     provider.decreaseCapacity(selectedHizmetID!); // Decrease the capacity
                                     setState(() {
                                       isConfirmed = true; // Update confirmation state
+                                      provider.selectTimeSlot(timeSlot, serviceId, selectedTesisID ?? 0);
                                     });
                                   } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Zaten bir randevunuz mevcut!")));
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(content: Text("Zaten bir randevunuz mevcut!")));
                                   }
                                 },
                           child: Text(

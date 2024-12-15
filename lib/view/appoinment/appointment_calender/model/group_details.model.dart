@@ -58,7 +58,7 @@ class Bilgi {
   int? grupRandevusu;
   int? randevusuzGiris;
   int? gunlukGirissayisi;
-  int? kullanimSuresi;
+  String? kullanimSuresi;
   int? cikisKontrolu;
   int? aktif;
 

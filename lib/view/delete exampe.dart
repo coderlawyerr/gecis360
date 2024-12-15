@@ -20,7 +20,7 @@ class _DeleteState extends State<Delete> {
             child: Column(
               children: [
                 Text("data"),
-                iptaledilenrandevucard(),
+                IptalEdilenRandevuCard(),
               ],
             ),
           ),

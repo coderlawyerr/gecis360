@@ -10,6 +10,7 @@ class AppointmentCard extends StatelessWidget {
   final String endTime; // Bitiş saati
   final String buttonText;
   final VoidCallback onButtonPressed;
+
   const AppointmentCard({
     Key? key,
     required this.title,
@@ -20,6 +21,7 @@ class AppointmentCard extends StatelessWidget {
     required this.buttonText,
     required this.onButtonPressed,
   }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -36,25 +38,15 @@ class AppointmentCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.normal,
-                color: Colors.black,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.black),
             ),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 14,
-                color: primaryColor,
-              ),
-            ),
+            Text(subtitle, style: TextStyle(fontSize: 14, color: primaryColor)),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildInfoBox((date.split("-").reversed.join("-")), Icons.calendar_today),
-                _buildInfoBox(startTime, Icons.access_time),
+                _buildInfoBox(startTime.formattedDate, Icons.access_time),
               ],
             ),
             const SizedBox(height: 20),
@@ -131,6 +123,17 @@ class AppointmentCard extends StatelessWidget {
       return dateTime.split(" ").last.substring(0, 5); // "HH:mm" kısmını alır
     } catch (e) {
       return "Bilinmiyor";
+    }
+  }
+}
+
+extension DateTimeParser on String {
+  String get formattedDate {
+    try {
+      final parsedDate = DateTime.parse(this);
+      return DateFormat('HH:mm').format(parsedDate);
+    } catch (e) {
+      return this;
     }
   }
 }

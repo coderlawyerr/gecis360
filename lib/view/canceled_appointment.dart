@@ -10,6 +10,7 @@ import 'package:armiyaapp/model/tesisbilgisi.dart';
 import 'package:armiyaapp/model/usermodel.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:armiyaapp/widget/appointmentcard.dart';
+import 'package:armiyaapp/widget/uyari_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,6 +24,7 @@ class CanceledAppointment extends StatefulWidget {
 class _CanceledAppointment extends State<CanceledAppointment> {
   UserModel? myusermodel;
   late final Future<List<Mycancelappointment>?> fetchcancelappointment4;
+
   // late final Future<List<DenemeCard>?> cardim;
   List<Mycancelappointment>? iptaledilenrandevular;
   Kullanicibilgisi? kullanicibilgim;
@@ -66,7 +68,11 @@ class _CanceledAppointment extends State<CanceledAppointment> {
       'Authorization': 'Basic cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=',
       'PHPSESSID': '0ms1fk84dssk9s3mtfmmdsjq24',
     };
-    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'kullanicibilgisi': appointment.kullaniciId?.toString()};
+
+    final body = {
+      'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as',
+      'kullanicibilgisi': appointment.kullaniciId?.toString()
+    };
     final body1 = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'tesisbilgisi': appointment.tesisId?.toString()};
     final body2 = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'hizmetbilgisi': appointment.hizmetId?.toString()};
 
@@ -121,65 +127,65 @@ class _CanceledAppointment extends State<CanceledAppointment> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, // Sola yaslama
           children: [
-            SizedBox(
-              height: 10,
-            ),
-            Expanded(
-              child: FutureBuilder<List<Mycancelappointment>?>(
-                future: fetchcancelappointment4,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Hata: ${snapshot.error}'));
-                  } else if (snapshot.hasData) {
-                    final data = snapshot.data!;
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        final appointment = data[index];
-                        return FutureBuilder<DenemeCard?>(
-                            future: deneme(appointment: appointment),
-                            builder: (context, snapshot2) {
-                              if (snapshot2.connectionState == ConnectionState.waiting) {
-                                return Center(
-                                    child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: CircularProgressIndicator(),
-                                ));
-                              } else if (snapshot2.hasError) {
-                                return Center(child: Text('Hata: ${snapshot2.error}'));
-                              } else if (snapshot2.hasData) {
-                                final data2 = snapshot2.data!;
-                                final bet = data2;
+            const SizedBox(height: 10),
+            FutureBuilder<List<Mycancelappointment>?>(
+              future: fetchcancelappointment4,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Hata: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  final data = snapshot.data!;
+                  return data.isEmpty
+                      ? IptalEdilenRandevuCard()
+                      : Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: data.length,
+                            itemBuilder: (context, index) {
+                              final appointment = data[index];
+                              return FutureBuilder<DenemeCard?>(
+                                  future: deneme(appointment: appointment),
+                                  builder: (context, snapshot2) {
+                                    if (snapshot2.connectionState == ConnectionState.waiting) {
+                                      return const Center(
+                                          child: Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: CircularProgressIndicator(),
+                                      ));
+                                    } else if (snapshot2.hasError) {
+                                      return Center(child: Text('Hata: ${snapshot2.error}'));
+                                    } else if (snapshot2.hasData) {
+                                      final data2 = snapshot2.data!;
+                                      final bet = data2;
 
-                                return AppointmentCard(
-                                  buttonText: "İptal Edilen Randevu",
-                                  title: bet.tesisbilgisimodel?.tesisAd ?? "",
-                                  subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
-                                  date: appointment.timestamp?.split(" ").first.toString() ?? "",
-                                  startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
-                                  endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
-                                  onButtonPressed: () {
-                                    // Randevuya tıklama işlemi
-                                  },
-                                );
-                              } else {
-                                return Center(child: Text('Veri bulunamadı'));
-                              }
-                            });
-                      },
-                    );
-                  } else {
-                    return Center(child: Text('Veri bulunamadı'));
-                  }
-                },
-              ),
+                                      return AppointmentCard(
+                                        buttonText: "İptal Edilen Randevu",
+                                        title: bet.tesisbilgisimodel?.tesisAd ?? "",
+                                        subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
+                                        date: appointment.timestamp?.split(" ").first.toString() ?? "",
+                                        startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
+                                        endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
+                                        onButtonPressed: () {
+                                          // Randevuya tıklama işlemi
+                                        },
+                                      );
+                                    } else {
+                                      return const Center(child: Text('Veri bulunamadı'));
+                                    }
+                                  });
+                            },
+                          ),
+                        );
+                } else {
+                  return const Center(child: Text('Veri bulunamadı'));
+                }
+              },
             ),
           ],
         ),

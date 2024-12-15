@@ -1,4 +1,5 @@
 import 'dart:convert'; // JSON parsing için gerekli
+import 'dart:io';
 import 'package:armiyaapp/const/const.dart';
 import 'package:armiyaapp/data/app_shared_preference.dart';
 import 'package:armiyaapp/model/usermodel.dart';
@@ -8,6 +9,7 @@ import 'package:armiyaapp/view/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // HTTP istekleri için gerekli
 import 'package:armiyaapp/data/app_shared_preference.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfilPage extends StatefulWidget {
   const EditProfilPage({super.key});
@@ -110,12 +112,13 @@ class _EditProfilPageState extends State<EditProfilPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Başarı'),
+          title: const Text('Başarı'),
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('Tamam'),
+              child: const Text('Tamam'),
               onPressed: () {
+                SharedDataService.loginbilgikaydet("", "");
                 Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
               },
             ),
@@ -131,11 +134,11 @@ class _EditProfilPageState extends State<EditProfilPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Hata Oldu'),
+          title: const Text('Hata Oldu'),
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('Tamam'),
+              child: const Text('Tamam'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -146,6 +149,8 @@ class _EditProfilPageState extends State<EditProfilPage> {
     );
   }
 
+  String? _base64String;
+  File? _selectedImage; // Kullanıcının seçtiği resim
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,9 +176,41 @@ class _EditProfilPageState extends State<EditProfilPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        radius: 40,
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          ClipOval(
+                            child: _base64String != null
+                                ? Image.memory(
+                                    base64Decode(_base64String!),
+                                    height: 100, // Yuvarlak görüntü için boyut
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(),
+                          ),
+                          Positioned(
+                            bottom: -10,
+                            child: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () async {
+                                final ImagePicker picker = ImagePicker();
+                                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+                                if (image != null) {
+                                  final bytes = await File(image.path).readAsBytes();
+
+                                  setState(() {
+                                    _base64String = base64Encode(bytes);
+                                    _selectedImage = File(image.path); // Resmi kaydet
+                                  });
+
+                                  print('Base64 String: $_base64String');
+                                }
+                              },
+                            ),
+                          )
+                        ],
                       ),
                       const SizedBox(
                         height: 10,
@@ -189,7 +226,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                           controller: namesurname,
                           enabled: false, // Değiştirilemez
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
                             hintText: "İsim Soyisim",
                             suffixIcon: Icon(Icons.person, color: primaryColor),
 
@@ -206,7 +243,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                           controller: phone,
                           enabled: false, // Değiştirilemez
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
                             hintText: "Telefon",
                             suffixIcon: Icon(Icons.phone, color: primaryColor),
 
@@ -225,7 +262,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                           decoration: InputDecoration(
                             hintText: "Eposta",
                             suffixIcon: Icon(Icons.mail, color: primaryColor),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(3),
                             ),
@@ -246,7 +283,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                         child: TextField(
                           controller: oldpassword,
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
                             hintText: "Mevcut Şifreni Yaz",
                             suffixIcon: Icon(Icons.password, color: primaryColor),
 
@@ -262,7 +299,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                         child: TextField(
                           controller: newpassword,
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
                             hintText: "Yeni Şifre",
                             suffixIcon: Icon(Icons.password, color: primaryColor),
 
@@ -278,7 +315,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                         child: TextField(
                           controller: repaetnewpassword,
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
                             hintText: "Şifre Tekrar Yaz",
                             suffixIcon: Icon(Icons.password, color: primaryColor),
 

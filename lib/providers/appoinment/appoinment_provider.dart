@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:armiyaapp/model/new_model/newmodel.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../../view/appoinment/appointment_calender/model/randevu_model.dart';
+
 class AppointmentProvider with ChangeNotifier {
 // Belirtilen hizmetin kapasitesini azaltan bir fonksiyon
   void decreaseCapacity(int serviceId) {
@@ -26,14 +28,20 @@ class AppointmentProvider with ChangeNotifier {
 
   DateTime? confirmedTimeSlot; // Onaylanan saat
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
   List<DateTime> confirmedTimeSlots = [];
+
   // Tesis ve hizmet listeleri
   List<FacilitySelectModel> _facilities = [];
+
   List<FacilitySelectModel> get facilities => _facilities;
+
   // Saat dilimi renklerini tutmak için bir harita
   Map<String, Color> slotColors = {};
+
   get activeAppointments => null;
+
   void updateSlotColor(int serviceIndex, int slotIndex, Color color) {
     final service = selectedServices[serviceIndex];
     final timeSlot = serviceTimeSlots[service.hizmetId]?[slotIndex];
@@ -41,39 +49,57 @@ class AppointmentProvider with ChangeNotifier {
     if (timeSlot != null) {
       final formattedStartTime = DateFormat('HH:mm').format(timeSlot);
       slotColors[formattedStartTime] = color; // Rengi güncelle
+      print("Renk Değişti: $color");
       notifyListeners(); // Dinleyicileri bilgilendir
     }
   }
 
   List<Bilgi> _services = [];
+
   List<Bilgi> get services => _services;
   List<Bilgi> _selectedServices = [];
+
   List<Bilgi> get selectedServices => _selectedServices;
+
   // Her hizmete ait saat dilimlerini saklamak için
   Map<int, List<DateTime>> _serviceTimeSlots = {};
+
   Map<int, List<DateTime>> get serviceTimeSlots => _serviceTimeSlots;
+
   // Her hizmetin periyot değerlerini saklamak için
   Map<int, int> _servicePeriyots = {};
+
   Map<int, int> get servicePeriyots => _servicePeriyots;
   List<Randevu> _existingAppointments = [];
+  List<RandevuModel> allAppointments = [];
+
   List<Randevu> get existingAppointments => _existingAppointments;
   DateTime? _selectedDate;
+
   DateTime? get selectedDate => _selectedDate;
   int aktifGunSayisi = 0; // Aktif gün sayısını buraya ekleyin veya dinamik olarak alın
   // Seçili tesis ve hizmet ID'leri
   int? _selectedFacilityId;
+
   int? get selectedFacilityId => _selectedFacilityId;
   List<int> _selectedServiceIds = [];
+
   List<int> get selectedServiceIds => _selectedServiceIds;
+
   // Durum değişkenleri
   bool _showCalendar = false;
+
   bool get showCalendar => _showCalendar;
   bool _showTimeSlots = false;
+
   bool get showTimeSlots => _showTimeSlots;
+
   // API Token
   final String _token = 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as';
+
   // CalendarController
   final CalendarController calendarController = CalendarController();
+
   // Mevcut Kullanıcı ID'si (Örnek olarak 1)
   final int currentUserId = 1; // Gerçek uygulamada, bu değeri kimlik doğrulama sisteminden alın
   // Tesisleri API'den Çekme
@@ -304,7 +330,8 @@ class AppointmentProvider with ChangeNotifier {
       // Bu güne ait zamanlayıcıyı bulma
       final schedule = hizmet.zamanlayiciList!.firstWhere(
         (zaman) => zaman.gun == selectedWeekday,
-        orElse: () => RandevuZamanlayici(gun: selectedWeekday, baslangicSaati: '09:00', bitisSaati: '17:00', periyot: 30), // Varsayılan değerler
+        orElse: () => RandevuZamanlayici(
+            gun: selectedWeekday, baslangicSaati: '09:00', bitisSaati: '17:00', periyot: 30), // Varsayılan değerler
       );
       // Periyot değerini al
       final periyot = schedule.periyot;
@@ -343,7 +370,8 @@ class AppointmentProvider with ChangeNotifier {
         startTime = startTime.add(Duration(minutes: periyot));
       }
       // Mevcut randevulara göre dolu saat dilimlerini çıkarma
-      Set<String> bookedSlots = _existingAppointments.where((r) => r.hizmetid == hizmet.hizmetId).map((r) => r.baslangicsaati ?? '').toSet();
+      Set<String> bookedSlots =
+          _existingAppointments.where((r) => r.hizmetid == hizmet.hizmetId).map((r) => r.baslangicsaati ?? '').toSet();
 
       Set<String> availableSlots = slots.toSet(); // Tüm slotları göster
 
@@ -398,7 +426,8 @@ class AppointmentProvider with ChangeNotifier {
           maxDate = today.add(Duration(days: aktifGunSayisi));
         }
 
-        if (selected.isBefore(today.subtract(const Duration(days: 1))) || (maxDate != null && selected.isAfter(maxDate))) {
+        if (selected.isBefore(today.subtract(const Duration(days: 1))) ||
+            (maxDate != null && selected.isAfter(maxDate))) {
           // Geçmiş veya izin verilen maksimum tarihten sonra bir tarih seçildi
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -429,8 +458,10 @@ class AppointmentProvider with ChangeNotifier {
         dayFormat: 'd',
       ),
       minDate: DateTime.now(),
-      maxDate:
-          aktifGunSayisi > 0 ? DateTime.now().add(Duration(days: aktifGunSayisi)) : DateTime.now().add(const Duration(days: 365)), // aktifGunSayisi 0 ise 1 yıl
+      maxDate: aktifGunSayisi > 0
+          ? DateTime.now().add(Duration(days: aktifGunSayisi))
+          : DateTime.now().add(const Duration(days: 365)),
+      // aktifGunSayisi 0 ise 1 yıl
       monthCellBuilder: (BuildContext context, MonthCellDetails details) {
         DateTime date = details.date;
         DateTime today = DateTime.now();
@@ -475,21 +506,24 @@ class AppointmentProvider with ChangeNotifier {
     List<DateTime> timeSlots = _serviceTimeSlots[hizmetId] ?? [];
 
     // Hizmet bilgilerini al
-    Bilgi? service = _selectedServices.firstWhere((s) => s.hizmetId == hizmetId); //firstWhereOrNull((s) => s.hizmetId == hizmetId);
+    Bilgi? service =
+        _selectedServices.firstWhere((s) => s.hizmetId == hizmetId); //firstWhereOrNull((s) => s.hizmetId == hizmetId);
 
     bool isServiceUnavailable = false;
     if (service.saatlikKapasite == 0 || service.ozelalan == 1) {
       isServiceUnavailable = true;
     }
 
-    for (var timeSlot in timeSlots) {
+    for (final timeSlot in timeSlots) {
       String formattedTime = DateFormat('HH:mm').format(timeSlot);
       if (isServiceUnavailable) {
         saatDurumlari[formattedTime] = Colors.red; // Hizmet Kullanılamaz
       } else {
-        bool isBookedByUser = _existingAppointments.any((r) => r.hizmetid == hizmetId && r.baslangicsaati == formattedTime && r.kullaniciid == currentUserId);
+        bool isBookedByUser = _existingAppointments
+            .any((r) => r.hizmetid == hizmetId && r.baslangicsaati == formattedTime && r.kullaniciid == currentUserId);
 
-        bool isBookedByOthers = _existingAppointments.any((r) => r.hizmetid == hizmetId && r.baslangicsaati == formattedTime && r.kullaniciid != currentUserId);
+        bool isBookedByOthers = _existingAppointments
+            .any((r) => r.hizmetid == hizmetId && r.baslangicsaati == formattedTime && r.kullaniciid != currentUserId);
 
         if (isBookedByUser) {
           saatDurumlari[formattedTime] = Colors.green; // Kullanıcı tarafından alınmış
@@ -504,7 +538,7 @@ class AppointmentProvider with ChangeNotifier {
     return saatDurumlari;
   }
 
-  void selectTimeSlot(DateTime timeSlot, int serviceId) {
+  void selectTimeSlot(DateTime timeSlot, int serviceId, int tesisId) {
     // Check the service's hourly capacity
     Bilgi? service = _selectedServices.firstWhere((s) => s.hizmetId == serviceId);
 

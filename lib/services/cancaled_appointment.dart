@@ -7,6 +7,8 @@ class CancaledAppointmentService {
   static Future<bool> CancaledAppointment(int randevuId) async {
     final String url = 'https://$apiBaseUrl/api/randevu/olustur/index.php';
 
+    print(randevuId);
+
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -15,9 +17,6 @@ class CancaledAppointmentService {
         },
         body: {'randevuiptalet': randevuId.toString(), 'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as'},
       );
-
-      print('HTTP Durum Kodu: ${response.statusCode}');
-      print('Gelen yanıt: ${response.body}');
 
       if (response.statusCode == 200) {
         // JSON kontrolü
@@ -30,6 +29,9 @@ class CancaledAppointmentService {
         } else if (body == "OK") {
           print('JSON Yanıt5: $body');
           return true;
+        } else if (body == "SUREGECTI") {
+          print("SUREGECTI");
+          return false;
         } else {
           print('JSON Yanıt6: $body');
           return false;

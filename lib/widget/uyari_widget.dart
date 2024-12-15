@@ -2,7 +2,7 @@ import 'package:armiyaapp/const/const.dart';
 import 'package:flutter/material.dart';
 
 //aktif randevu için
-class aktifappointmnetcard extends StatelessWidget {
+class AktifAppointmnetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -36,32 +36,7 @@ class aktifappointmnetcard extends StatelessWidget {
 ///////////////////////////////////////////////////////////////
 //geçmiş randevu için
 //aktif randevu için
-class gecmisrandevucard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(16),
-      color: primaryColor,
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.white),
-            SizedBox(width: 10),
-            Text(
-              'İptal edilmiş randevunuz yok',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-///////////////////////////////////////////////////////////////////
-class iptaledilenrandevucard extends StatelessWidget {
+class GecmisRandevuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -76,6 +51,31 @@ class iptaledilenrandevucard extends StatelessWidget {
             SizedBox(width: 10),
             Text(
               'Geçmiş randevunuz yok',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+///////////////////////////////////////////////////////////////////
+class IptalEdilenRandevuCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.all(16),
+      color: primaryColor,
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.white),
+            SizedBox(width: 10),
+            Text(
+              'İptal edilmiş randevunuz yok',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],

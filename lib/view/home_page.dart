@@ -47,6 +47,7 @@ class _HomePageState extends State<HomePage> {
 
   // Kullanıcı adını ayarlamak için bir fonksiyon
   getUserData() async {
+    print("getUserData");
     _sharedDataService.getLoginData().then((userData) {
       userModel = userData;
       setState(() {});
@@ -59,13 +60,13 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return MyTabbar(); // Randevular
       case 1:
-        return AppointmentView(); // Randevu Oluştur
+        return const AppointmentView(); // Randevu Oluştur
       case 2:
-        return PrettyQrHomePage(); // QR Kod
+        return const PrettyQrHomePage(); // QR Kod
       case 3:
-        return SettingPage();
+        return StaticTablePage(); ////kayit
       case 4:
-        return StaticTablePage(); //kayit
+        return const SettingPage(); ////ayarlar
       default:
         return MyTabbar(); // Varsayılan sayfa
     }
@@ -81,14 +82,14 @@ class _HomePageState extends State<HomePage> {
           filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Arka plan bulanıklığı
           child: AlertDialog(
             backgroundColor: Colors.white,
-            title: Text('Çıkış Yapmak Üzeresin !'),
-            content: Text('Çıkmak istediğinizden emin misiniz?'),
+            title: const Text('Çıkış Yapmak Üzeresin !'),
+            content: const Text('Çıkmak istediğinizden emin misiniz?'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Dialogu kapat
                 },
-                child: Text('Hayır', style: TextStyle(color: Colors.black)),
+                child: const Text('Hayır', style: TextStyle(color: Colors.black)),
               ),
               TextButton(
                 onPressed: () {
@@ -111,9 +112,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight), // AppBar boyutunu ayarlıyoruz
+        preferredSize: const Size.fromHeight(kToolbarHeight), // AppBar boyutunu ayarlıyoruz
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.yellow, Colors.orange], // Gradyan renkleri
               begin: Alignment.topLeft,
@@ -126,7 +127,7 @@ class _HomePageState extends State<HomePage> {
             elevation: 0, // AppBar'ın gölgesini kaldırıyoruz
             title: Text(
               (selectedMarkaName ?? "Firma Seçilmedi").toUpperCase(), // Markayı büyük harflerle göster
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ),
@@ -134,18 +135,18 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: CurvedNavigationBar(
         key: _bottomNavigationKey,
         index: _page,
-        items: <Widget>[
+        items: const <Widget>[
           Icon(Icons.event, size: 30, color: Colors.white), // Randevular
           Icon(Icons.add, size: 30, color: Colors.white), // Randevu Oluştur
           Icon(Icons.qr_code, size: 30, color: Colors.white), // QR Kod
-          Icon(Icons.tune, size: 30, color: Colors.white), // Çıkış
-          Icon(Icons.book_online_outlined, size: 30, color: Colors.white), //kayıt
+          Icon(Icons.book, size: 30, color: Colors.white), // kayıt
+          Icon(Icons.tune, size: 30, color: Colors.white), //çıkış
         ],
         color: primaryColor,
         buttonBackgroundColor: primaryColor,
         backgroundColor: Colors.white,
         animationCurve: Curves.easeInOut,
-        animationDuration: Duration(milliseconds: 500),
+        animationDuration: const Duration(milliseconds: 500),
         onTap: (index) {
           setState(() {
             _page = index;
