@@ -22,10 +22,9 @@ class KayitOlustur {
       );
 
       if (response.statusCode == 200) {
- 
         final responseBody = utf8.decode(response.bodyBytes);
-  
-        final List<dynamic> jsonResponse = jsonDecode(response.body);
+
+        final List<dynamic> jsonResponse = jsonDecode(responseBody);
 
         // Listeyi `kayit` modeline dönüştürüyoruz
         return jsonResponse.map((json) => kayit.fromJson(json)).toList();

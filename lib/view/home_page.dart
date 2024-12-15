@@ -55,12 +55,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Her sekme için ilgili sayfa widget'ını döndüren fonksiyon
-  Widget getSelectedPage(int index) {
+  Widget getSelectedPage(int index, Function() onConfirm) {
     switch (index) {
       case 0:
         return MyTabbar(); // Randevular
       case 1:
-        return const AppointmentView(); // Randevu Oluştur
+        return AppointmentView(
+          onConfirm: onConfirm,
+        ); // Randevu Oluştur
       case 2:
         return const PrettyQrHomePage(); // QR Kod
       case 3:
@@ -159,7 +161,11 @@ class _HomePageState extends State<HomePage> {
         },
         letIndexChange: (index) => true,
       ),
-      body: getSelectedPage(_page), // Alt menüden seçilen sayfayı burada gösteriyoruz
+      body: getSelectedPage(_page, () {
+        setState(() {
+          _page = 0;
+        });
+      }), // Alt menüden seçilen sayfayı burada gösteriyoruz
     );
   }
 }

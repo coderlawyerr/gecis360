@@ -89,4 +89,9 @@ class RandevuModel {
     data['timestamp'] = this.timestamp;
     return data;
   }
+
+  @override
+  String toString() {
+    return 'randevuId: ${this.randevuId} ,isActive: ${this.aktif} , ';
+  }
 }

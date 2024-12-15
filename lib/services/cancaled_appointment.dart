@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:armiyaapp/model/cancelappointment.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +18,6 @@ class CancaledAppointmentService {
         },
         body: {'randevuiptalet': randevuId.toString(), 'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as'},
       );
-
       if (response.statusCode == 200) {
         // JSON kontrolü
         final body = response.body;
@@ -28,6 +28,8 @@ class CancaledAppointmentService {
           return false;
         } else if (body == "OK") {
           print('JSON Yanıt5: $body');
+          return true;
+        } else if (body == "SUCCESS") {
           return true;
         } else if (body == "SUREGECTI") {
           print("SUREGECTI");

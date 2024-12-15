@@ -92,7 +92,10 @@ class _PrettyQrHomePageState extends State<PrettyQrHomePage> {
       String selectedQrCode = qrCodes[random.nextInt(qrCodes.length)];
       setState(() {
         currentQrCode = selectedQrCode;
+        print(currentQrCode);
+        print(qrCodes);
       });
+      _fetchQrCodes();
     }
   }
 

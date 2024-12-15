@@ -1,4 +1,5 @@
 import 'dart:convert' as http;
+import 'dart:developer';
 
 import 'package:armiyaapp/data/app_shared_preference.dart';
 import 'package:armiyaapp/providers/appoinment/misafir_add_provider.dart';
@@ -22,23 +23,22 @@ import 'appointment_calender/model/group_details.model.dart' as GroupDetailsMode
 const double _ekleSheetHeightFactor = 0.50;
 
 class AppointmentView extends StatefulWidget {
-  const AppointmentView({super.key});
-
+  const AppointmentView({super.key, required this.onConfirm});
+  final Function() onConfirm;
   @override
   State createState() => _AppointmentViewState();
 }
 
 class _AppointmentViewState extends State<AppointmentView> {
+  late AppointmentProvider appointmentProvider;
+
   int? selectedTesisID;
   int? selectedHizmetID;
-
 
   /// If user has appointment in same day it returns true
   bool alreadyBooked(List<RandevuModel> allAppointments, DateTime selectedDate) => allAppointments.any((element) {
         final elementStartTime = DateTime.tryParse(element.baslangicTarihi!);
-        return selectedDate.month == elementStartTime!.month &&
-            selectedDate.day == elementStartTime.day &&
-            selectedDate.year == elementStartTime.year;
+        return selectedDate.month == elementStartTime!.month && selectedDate.day == elementStartTime.day && selectedDate.year == elementStartTime.year;
       });
 
   @override
@@ -46,13 +46,19 @@ class _AppointmentViewState extends State<AppointmentView> {
     super.initState();
     // Widget ilk oluşturulduğunda tesisleri çek
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<AppointmentProvider>(context, listen: false);
-      provider.fetchFacilities().catchError((error) {
+      appointmentProvider = Provider.of<AppointmentProvider>(context, listen: false);
+      appointmentProvider.fetchFacilities().catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Tesisler alınamadı: $error')),
         );
       });
     });
+  }
+
+  @override
+  void dispose() {
+    appointmentProvider.clean();
+    super.dispose();
   }
 
   @override
@@ -66,6 +72,9 @@ class _AppointmentViewState extends State<AppointmentView> {
             if (provider.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
+            appointmentProvider = provider;
+            print(appointmentProvider.allAppointments);
+            print(appointmentProvider.allAppointments.length);
 
             return SingleChildScrollView(
               child: Padding(
@@ -84,19 +93,17 @@ class _AppointmentViewState extends State<AppointmentView> {
                     Container(
                       margin: const EdgeInsets.all(3),
                       padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: const BorderRadius.all(Radius.circular(4))),
+                      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: const BorderRadius.all(Radius.circular(4))),
                       child: DropdownButton<int>(
                         underline: const SizedBox(),
                         hint: const Text(
                           'Tesis Seçiniz',
                           style: TextStyle(color: Colors.grey),
                         ),
-                        value: provider.selectedFacilityId,
+                        value: appointmentProvider.selectedFacilityId,
                         // hayır api ile ilgili değil
                         isExpanded: true,
-                        items: provider.facilities
+                        items: appointmentProvider.facilities
                             .map((facility) => DropdownMenuItem<int>(
                                   value: facility.tesisId,
                                   child: Text(facility.tesisAd ?? 'Bilinmeyen Tesis'),
@@ -104,17 +111,17 @@ class _AppointmentViewState extends State<AppointmentView> {
                             .toList(),
                         onChanged: (value) async {
                           selectedTesisID = value;
-                          provider.setSelectedDate(null);
-                          provider.calendarController.selectedDate = null;
-                          provider.setSelectedServices([]);
+                          appointmentProvider.setSelectedDate(null);
+                          appointmentProvider.calendarController.selectedDate = null;
+                          appointmentProvider.setSelectedServices([]);
 
                           if (value != null) {
-                            provider.setSelectedFacility(value);
+                            appointmentProvider.setSelectedFacility(value);
                             try {
-                              await provider.fetchServices(value);
+                              await appointmentProvider.fetchServices(value);
                               // Hizmetler yüklendiğinde takvimi yeniden göster
 
-                              provider.resetToCalendar(); // Takvimi sıfırla
+                              appointmentProvider.resetToCalendar(); // Takvimi sıfırla
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -134,15 +141,15 @@ class _AppointmentViewState extends State<AppointmentView> {
                     const Text("Hizmet Seçimi", style: TextStyle(fontSize: 16, color: Colors.grey)),
                     MultiDropdown(
                       fieldDecoration: const FieldDecoration(hintText: "Hizmet Seçiniz!"),
-                      items: provider.services
+                      items: appointmentProvider.services
                           .map((service) => DropdownItem<int>(
                                 value: service.hizmetId!,
                                 label: service.hizmetAd ?? 'Bilinmeyen Hizmet',
                               ))
                           .toList(),
                       onSelectionChange: (List<int> selectedIds) async {
-                        provider.resetToCalendar();
-                        provider.setSelectedServices(selectedIds);
+                        appointmentProvider.resetToCalendar();
+                        appointmentProvider.setSelectedServices(selectedIds);
 
                         // Check if selectedIds is not empty before accessing the last element
                         if (selectedIds.isNotEmpty) {
@@ -162,9 +169,9 @@ class _AppointmentViewState extends State<AppointmentView> {
                               // Chip silindiğinde hizmeti seçili listeden çıkar
                               final id = selectedItems.value;
                               selectedHizmetID = id;
-                              final updatedIds = List<int>.from(provider.selectedServiceIds);
+                              final updatedIds = List<int>.from(appointmentProvider.selectedServiceIds);
                               updatedIds.remove(id);
-                              provider.resetToCalendar();
+                              appointmentProvider.resetToCalendar();
                               // provider.setSelectedServices(updatedIds);
                             },
                           )
@@ -181,28 +188,28 @@ class _AppointmentViewState extends State<AppointmentView> {
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () => provider.calendarController.backward!(),
+                                onPressed: () => appointmentProvider.calendarController.backward!(),
                                 icon: const Icon(Icons.arrow_back_ios_new),
                               ),
                               IconButton(
-                                onPressed: () => provider.calendarController.forward!(),
+                                onPressed: () => appointmentProvider.calendarController.forward!(),
                                 icon: const Icon(Icons.arrow_forward_ios_sharp),
                               ),
                               ElevatedButton(
-                                onPressed: () => provider.calendarController.displayDate = DateTime.now(),
+                                onPressed: () => appointmentProvider.calendarController.displayDate = DateTime.now(),
                                 child: const Text('Bugün'),
                               ),
                             ],
                           ),
                           // Takvim
-                          provider.buildCalendar(context)
+                          appointmentProvider.buildCalendar(context)
                         ],
                       ),
                     const SizedBox(height: 20),
 
                     // Saat Dilimleri
                     Visibility(
-                      visible: provider.showTimeSlots && provider.serviceTimeSlots.isNotEmpty,
+                      visible: appointmentProvider.showTimeSlots && appointmentProvider.serviceTimeSlots.isNotEmpty,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -223,7 +230,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                           Align(
                             alignment: Alignment.topRight,
                             child: ElevatedButton(
-                              onPressed: () => provider.backToCalendar(),
+                              onPressed: () => appointmentProvider.backToCalendar(),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF5664D9),
                                 shape: RoundedRectangleBorder(
@@ -237,11 +244,11 @@ class _AppointmentViewState extends State<AppointmentView> {
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: provider.selectedServices.length,
+                            itemCount: appointmentProvider.selectedServices.length,
                             itemBuilder: (context, serviceIndex) {
-                              final service = provider.selectedServices[serviceIndex];
+                              final service = appointmentProvider.selectedServices[serviceIndex];
                               final serviceId = service.hizmetId!;
-                              final serviceSlots = provider.serviceTimeSlots[serviceId] ?? [];
+                              final serviceSlots = appointmentProvider.serviceTimeSlots[serviceId] ?? [];
                               // saat aralıkları apıden geliyor
 
                               return Column(
@@ -267,26 +274,26 @@ class _AppointmentViewState extends State<AppointmentView> {
                                           itemCount: serviceSlots.length,
                                           itemBuilder: (context, slotIndex) {
                                             final timeSlot = serviceSlots[slotIndex];
-                                            final periyot = provider.servicePeriyots[serviceId]!;
+                                            final periyot = appointmentProvider.servicePeriyots[serviceId]!;
                                             final bitisSaati = timeSlot.add(Duration(minutes: periyot));
                                             final formattedStartTime = DateFormat('HH:mm').format(timeSlot);
                                             final formattedEndTime = DateFormat('HH:mm').format(bitisSaati);
                                             final bool isPast = timeSlot.isBefore(DateTime.now());
 
-                                            bool isConflictedWithOtherService = provider.allAppointments.any((element) {
+                                            bool isConflictedWithOtherService = appointmentProvider.allAppointments.any((element) {
                                               final elementStartTime = DateTime.tryParse(element.baslangicTarihi!);
                                               final elementEndTime = DateTime.tryParse(element.bitisTarihi!);
                                               return element.tesisId != selectedTesisID &&
-                                                  (timeSlot.isBefore(elementEndTime!) &&
-                                                      bitisSaati.isAfter(elementStartTime!));
+                                                  (timeSlot.isBefore(elementEndTime!) && bitisSaati.isAfter(elementStartTime!));
                                             });
 
-                                            bool alreadyBooked = provider.allAppointments.any((element) {
+                                            // bool alreadyBooked = false;
+
+                                            bool alreadyBooked = appointmentProvider.allAppointments.any((element) {
                                               final elementStartTime = DateTime.tryParse(element.baslangicTarihi!);
                                               final elementEndTime = DateTime.tryParse(element.bitisTarihi!);
                                               return element.tesisId == selectedTesisID &&
-                                                  (timeSlot.isBefore(elementEndTime!) &&
-                                                      bitisSaati.isAfter(elementStartTime!));
+                                                  (timeSlot.isBefore(elementEndTime!) && bitisSaati.isAfter(elementStartTime!));
                                             });
 
                                             Color chipColor;
@@ -304,11 +311,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                                               chipColor = Colors.blue;
                                             }
 
-                                            bool isDisabled = provider
-                                                    .kontrolEt(serviceId)
-                                                    .values
-                                                    .any((c) => c.value == Colors.green.value) &&
-                                                provider.slotColors[formattedStartTime]?.value != Colors.green.value;
+                                            bool isDisabled = appointmentProvider.kontrolEt(serviceId).values.any((c) => c.value == Colors.green.value) &&
+                                                appointmentProvider.slotColors[formattedStartTime]?.value != Colors.green.value;
 
                                             print('Seçili mi?? $isDisabled');
 
@@ -316,18 +320,17 @@ class _AppointmentViewState extends State<AppointmentView> {
                                               opacity: isPast ? 0.5 : 1.0,
                                               child: GestureDetector(
                                                 onTap: () {
-
-                                                  if (this.alreadyBooked(provider.allAppointments,
-                                                      provider.calendarController.selectedDate ?? DateTime.now())) {
+                                                  if (this.alreadyBooked(appointmentProvider.allAppointments,
+                                                      appointmentProvider.calendarController.selectedDate ?? DateTime.now())) {
                                                     return;
                                                   }
+
                                                   if (isPast ||
                                                       chipColor == Colors.yellow ||
                                                       chipColor == Colors.green ||
                                                       chipColor == Colors.red ||
                                                       chipColor == Colors.grey) return;
-
-                                                  if (provider.serviceTimeSlots.containsValue([timeSlot])) {
+                                                  if (appointmentProvider.serviceTimeSlots.containsValue([timeSlot])) {
                                                     return;
                                                   }
                                                   // Saat dilimi seçimini işleme
@@ -342,6 +345,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                                                     slotIndex,
                                                     timeSlot,
                                                     serviceId,
+                                                    appointmentProvider,
+                                                    widget.onConfirm,
                                                   );
                                                   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                 },
@@ -394,8 +399,9 @@ class _AppointmentViewState extends State<AppointmentView> {
     int slotIndex,
     DateTime timeSlot,
     int serviceId,
+    AppointmentProvider provider,
+    Function() onConfirm,
   ) async {
-    final provider = Provider.of<AppointmentProvider>(context, listen: false);
     bool isConfirmed = false; // Randevunun onaylandığını izlemek için
     GroupDetailsModel.Uyegruplari? selectedGroup; // Seçilen grup ID'sini saklamak için
 
@@ -404,9 +410,7 @@ class _AppointmentViewState extends State<AppointmentView> {
         ? provider.facilities.firstWhere((f) => f.tesisId == provider.selectedFacilityId).tesisAd ?? 'Bilinmeyen Tesis'
         : 'Tesis Seçilmedi';
 
-    String selectedService = provider.selectedServiceIds.isNotEmpty
-        ? provider.selectedServices.map((s) => s.hizmetAd).join(', ')
-        : 'Hizmet Seçilmedi';
+    String selectedService = provider.selectedServiceIds.isNotEmpty ? provider.selectedServices.map((s) => s.hizmetAd).join(', ') : 'Hizmet Seçilmedi';
 
     // Seçilen zaman dilimini belirleyin
     final periyot = provider.servicePeriyots[service.hizmetId]!; // Hizmetin periyodunu al
@@ -618,8 +622,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    misafirProvider.misafirList.isNotEmpty ? Colors.grey : const Color(0xFF5664D9),
+                                backgroundColor: misafirProvider.misafirList.isNotEmpty ? Colors.grey : const Color(0xFF5664D9),
                                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -670,8 +673,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                     // Kalan randevu sayısını azalt
                                     if (service.saatlikKapasite != null && service.saatlikKapasite! > 0) {
                                       setState(() {
-                                        service.saatlikKapasite =
-                                            service.saatlikKapasite! - 1; // Kalan randevu sayısını bir azalt
+                                        service.saatlikKapasite = service.saatlikKapasite! - 1; // Kalan randevu sayısını bir azalt
                                       });
                                     }
 
@@ -686,6 +688,8 @@ class _AppointmentViewState extends State<AppointmentView> {
                                   // Randevu onaylandı
                                   setState(() {
                                     isConfirmed = true;
+                                    Navigator.pop(context);
+                                    onConfirm();
                                   });
 
                                   // Misafir listesini temizle
@@ -699,8 +703,7 @@ class _AppointmentViewState extends State<AppointmentView> {
                                       provider.selectTimeSlot(timeSlot, serviceId, selectedTesisID ?? 0);
                                     });
                                   } else {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(content: Text("Zaten bir randevunuz mevcut!")));
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Zaten bir randevunuz mevcut!")));
                                   }
                                 },
                           child: Text(

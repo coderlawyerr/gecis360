@@ -70,11 +70,7 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
       'Authorization': 'Basic cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=',
       'PHPSESSID': '0ms1fk84dssk9s3mtfmmdsjq24',
     };
-    final body = {
-      'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as',
-      'aktifrandevular': '1',
-      'kullanici_id': myusermodel?.iD?.toString() ?? ""
-    };
+    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'aktifrandevular': '1', 'kullanici_id': myusermodel?.iD?.toString() ?? ""};
 
     try {
       final response = await http.post(Uri.parse(url), headers: headers, body: body);
@@ -100,10 +96,7 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
       'Authorization': 'Basic cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=',
       'PHPSESSID': '0ms1fk84dssk9s3mtfmmdsjq24',
     };
-    final body = {
-      'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as',
-      'kullanicibilgisi': appointment.kullaniciId?.toString()
-    };
+    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'kullanicibilgisi': appointment.kullaniciId?.toString()};
 
     final body1 = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'tesisbilgisi': appointment.tesisId?.toString()};
     final body2 = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'hizmetbilgisi': appointment.hizmetId?.toString()};
@@ -125,7 +118,9 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
 
       final response1 = results[1];
       if (response1.statusCode == 200 && response1.body != "false") {
-        final jsonData = json.decode(response1.body);
+        final decodedBody = utf8.decode(response1.bodyBytes);
+
+        final jsonData = json.decode(decodedBody);
         tesisbilgim = Tesisbilgisi.fromJson(jsonData);
       }
 
@@ -215,14 +210,14 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
                                         startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
                                         endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
                                         onButtonPressed: () async {
-                                          bool control = await CancaledAppointmentService.CancaledAppointment(
-                                              aktifrandevular![index].randevuId!);
+                                          bool control = await CancaledAppointmentService.CancaledAppointment(aktifrandevular![index].randevuId!);
                                           print("control :$control");
                                           print("merhab");
                                           if (control) {
                                             // İptal edilen randevuyu provider'a ekle
-                                            var iptalRandevuProvider =
-                                                Provider.of<IptalRandevuProvider>(context, listen: false);
+                                            var iptalRandevuProvider = Provider.of<IptalRandevuProvider>(context, listen: false);
+                                            var appointmentProvider = Provider.of<AppointmentProvider>(context, listen: false);
+                                            appointmentProvider.removeAppointment(appointment.randevuId!);
                                             iptalRandevuProvider.iptalEdilenRandevuEkle(Mycancelappointment(
                                               randevuId: aktifrandevular![index].randevuId,
                                               hizmetId: aktifrandevular![index].hizmetId,
