@@ -21,7 +21,7 @@ class _LogoAnimationScreenState extends State<LogoAnimationScreen> with SingleTi
 
     // Animasyon Kontrolcüsünü Başlat
     _controller = AnimationController(
-      duration: const Duration(seconds: 5), // Animasyon süresini 5 saniye olarak ayarladık
+      duration: const Duration(seconds: 2), // Animasyon süresini 5 saniye olarak ayarladık
       vsync: this,
     );
 
@@ -52,9 +52,10 @@ class _LogoAnimationScreenState extends State<LogoAnimationScreen> with SingleTi
           if (user != null) {
             MarkaHelper.setMarka(user.markaadi!);
           }
+
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => user == null ? LoginPage() : const HomePage()), // Yeni sayfanın adı
+            MaterialPageRoute(builder: (context) => user == null ? LoginPage() : HomePage(key: homePageKey)), // Yeni sayfanın adı
           );
         });
       }

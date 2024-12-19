@@ -424,16 +424,13 @@ class AppointmentProvider with ChangeNotifier {
       onSelectionChanged: (calendarSelectionDetails) {
         DateTime? selected = calendarSelectionDetails.date;
         if (selected == null) return;
-
         print('Seçilen Tarih: $selected');
-
         // Geçmiş tarihi kontrol et (bugün ve geleceği seçebilir)
         DateTime today = DateTime.now();
         DateTime? maxDate;
         if (aktifGunSayisi > 0) {
           maxDate = today.add(Duration(days: aktifGunSayisi));
         }
-
         if (selected.isBefore(today.subtract(const Duration(days: 1))) || (maxDate != null && selected.isAfter(maxDate))) {
           // Geçmiş veya izin verilen maksimum tarihten sonra bir tarih seçildi
           ScaffoldMessenger.of(context).showSnackBar(
@@ -443,7 +440,6 @@ class AppointmentProvider with ChangeNotifier {
           );
           return;
         }
-
         // Tarihi seç ve saat dilimlerini göster
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           try {
@@ -474,16 +470,13 @@ class AppointmentProvider with ChangeNotifier {
         if (aktifGunSayisi > 0) {
           maxDate = today.add(Duration(days: aktifGunSayisi));
         }
-
         bool isSelectable = true;
         if (date.isBefore(today.subtract(const Duration(days: 1)))) {
           isSelectable = false;
         } else if (maxDate != null && date.isAfter(maxDate)) {
           isSelectable = false;
         }
-
         print('Date: $date, Selectable: $isSelectable');
-
         return Container(
           decoration: BoxDecoration(
             color: isSelectable ? Colors.white : Colors.grey[300],

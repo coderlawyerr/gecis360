@@ -40,13 +40,16 @@ class _CanceledAppointment extends State<PassAppointment> {
       'Authorization': 'Basic cm9vdEBnZWNpczM2MC5jb206MTIzNDEyMzQ=',
       'PHPSESSID': '0ms1fk84dssk9s3mtfmmdsjq24',
     };
-    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'gecmisrandevular': '1', 'kullanici_id': '1'};
+    print("KullanıcıId: ${myusermodel?.iD}");
+    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'gecmisrandevular': '1', 'kullanici_id': myusermodel?.iD?.toString() ?? ""};
 
     try {
       final response = await http.post(Uri.parse(url), headers: headers, body: body);
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
         pasifrandevular = jsonData.map((item) => PassiveModel.fromJson(item)).toList();
+        print("Eleman sayısı:${pasifrandevular!.length}");
+        print(jsonData);
         return pasifrandevular;
       }
     } catch (e) {
@@ -157,15 +160,13 @@ class _CanceledAppointment extends State<PassAppointment> {
                                       final bet = data2;
 
                                       return AppointmentCard(
-                                        buttonText: "Geçmiş Randevular",
+                                        buttonText: null,
                                         title: bet.tesisbilgisimodel?.tesisAd ?? "",
                                         subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
                                         date: appointment.timestamp?.split(" ").first.toString() ?? "",
                                         startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
                                         endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
-                                        onButtonPressed: () {
-                                          // Randevuya tıklama işlemi
-                                        },
+                                        onButtonPressed: null,
                                       );
                                     } else {
                                       return Center(child: Text('Veri bulunamadı'));

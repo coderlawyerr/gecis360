@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
-  final IconData? icon;
+
   final VoidCallback onPressed;
 
   const CustomButton({
     required this.text,
-    required this.icon,
+
     required this.onPressed,
     super.key,
   });
@@ -32,10 +32,7 @@ class CustomButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center, // Metni ortalamak için
           children: [
-            if (icon != null) ...[
-              Icon(icon, color: Colors.white),
-              const SizedBox(width: 10), // İkon ile metin arasına boşluk ekler
-            ],
+         
             Text(
               text,
               style: const TextStyle(color: Colors.white),

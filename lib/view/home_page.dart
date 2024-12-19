@@ -8,6 +8,7 @@ import 'package:armiyaapp/view/appoinment/appoinment_view.dart';
 import 'package:armiyaapp/view/settings_page.dart';
 import 'package:armiyaapp/view/tabbar/tabbar.dart';
 import 'package:armiyaapp/view/login.dart';
+import 'package:armiyaapp/view/your_records.dart';
 import 'package:armiyaapp/widget/table.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -15,18 +16,26 @@ import 'package:armiyaapp/const/const.dart';
 
 import 'pretty_qr.dart';
 
+final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   UserModel? userModel;
   String? selectedMarkaName; // Seçilen markanın adı
   final SharedDataService _sharedDataService = SharedDataService();
-  int _page = 0; // Bottom navigation'da seçili olan sayfa
+  int page = 0; // Bottom navigation'da seçili olan sayfa
+  void sayfaGuncelle(int index) {
+    print("sayfaGuncelle Çalıştı");
+    setState(() {
+      page = index;
+    });
+  }
 
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
 
@@ -58,19 +67,17 @@ class _HomePageState extends State<HomePage> {
   Widget getSelectedPage(int index, Function() onConfirm) {
     switch (index) {
       case 0:
-        return MyTabbar(); // Randevular
+        return Yourrecords(); // Randevular
       case 1:
-        return AppointmentView(
-          onConfirm: onConfirm,
-        ); // Randevu Oluştur
+        return PrettyQrHomePage();
       case 2:
-        return const PrettyQrHomePage(); // QR Kod
-      case 3:
-        return StaticTablePage(); ////kayit
-      case 4:
-        return const SettingPage(); ////ayarlar
+        return SettingPage(); // QR Kod
+      // case 3:
+      //   return const Yourrecords(); ////kayit
+      // case 4:
+      //   return const SettingPage(); ////ayarlar
       default:
-        return MyTabbar(); // Varsayılan sayfa
+        return Yourrecords(); // Varsayılan sayfa
     }
   }
 
@@ -136,13 +143,13 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: CurvedNavigationBar(
         key: _bottomNavigationKey,
-        index: _page,
+        index: page,
         items: const <Widget>[
-          Icon(Icons.event, size: 30, color: Colors.white), // Randevular
-          Icon(Icons.add, size: 30, color: Colors.white), // Randevu Oluştur
-          Icon(Icons.qr_code, size: 30, color: Colors.white), // QR Kod
-          Icon(Icons.book, size: 30, color: Colors.white), // kayıt
-          Icon(Icons.tune, size: 30, color: Colors.white), //çıkış
+          Icon(Icons.book, size: 30, color: Colors.white), // Randevular
+          Icon(Icons.qr_code, size: 30, color: Colors.white), // Randevu Oluştur
+          Icon(Icons.tune, size: 30, color: Colors.white), // QR Kod
+          // Icon(Icons.book, size: 30, color: Colors.white), // kayıt
+          // Icon(Icons.tune, size: 30, color: Colors.white), //çıkış
         ],
         color: primaryColor,
         buttonBackgroundColor: primaryColor,
@@ -150,10 +157,7 @@ class _HomePageState extends State<HomePage> {
         animationCurve: Curves.easeInOut,
         animationDuration: const Duration(milliseconds: 500),
         onTap: (index) {
-          setState(() {
-            _page = index;
-          });
-
+          sayfaGuncelle(index);
           // Eğer çıkış sayfası (index == 3) seçildiyse dialog göster
           // if (index == 3) {
           //   showExitDialog();
@@ -161,9 +165,9 @@ class _HomePageState extends State<HomePage> {
         },
         letIndexChange: (index) => true,
       ),
-      body: getSelectedPage(_page, () {
+      body: getSelectedPage(page, () {
         setState(() {
-          _page = 0;
+          page = 0;
         });
       }), // Alt menüden seçilen sayfayı burada gösteriyoruz
     );

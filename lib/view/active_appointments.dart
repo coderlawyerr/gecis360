@@ -166,6 +166,13 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
+              child: Text(
+                "Randevularınızı, randevu gününün başlangıç saatinden en geç 60 dakika öncesine kadar iptal edebilirsiniz.",
+                style: TextStyle(color: Colors.grey, fontSize: 15),
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -201,32 +208,87 @@ class _ActiveAppointmentState extends State<ActiveAppointment> {
                                     } else if (snapshot2.hasData) {
                                       final data2 = snapshot2.data!;
                                       final bet = data2;
-
                                       return AppointmentCard(
-                                        buttonText: "Randevuyu iptal et!",
+                                        buttonText: "Randevu İptal",
                                         title: bet.tesisbilgisimodel?.tesisAd ?? "",
                                         subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
                                         date: appointment.baslangicTarihi?.split(" ").first.toString() ?? "boş",
                                         startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
                                         endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
                                         onButtonPressed: () async {
-                                          bool control = await CancaledAppointmentService.CancaledAppointment(aktifrandevular![index].randevuId!);
-                                          print("control :$control");
-                                          print("merhab");
-                                          if (control) {
-                                            // İptal edilen randevuyu provider'a ekle
-                                            var iptalRandevuProvider = Provider.of<IptalRandevuProvider>(context, listen: false);
-                                            var appointmentProvider = Provider.of<AppointmentProvider>(context, listen: false);
-                                            appointmentProvider.removeAppointment(appointment.randevuId!);
-                                            iptalRandevuProvider.iptalEdilenRandevuEkle(Mycancelappointment(
-                                              randevuId: aktifrandevular![index].randevuId,
-                                              hizmetId: aktifrandevular![index].hizmetId,
-                                              // Diğer alanlar...
-                                            ));
+                                          // Show confirmation dialog
+                                          bool? confirm = await showDialog<bool>(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                // title: Text("Randevu İptal"),
+                                                content: Text("Randevunuzu iptal etmek istediğinize emin misiniz?"),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(false); // User pressed Cancel
+                                                    },
+                                                    child: Text(
+                                                      "Hayır, vacgeç",
+                                                      style: TextStyle(color: Colors.blue),
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(true); // User pressed Yes
+                                                    },
+                                                    child: Text("Evet, iptal et.", style: TextStyle(color: Colors.red)),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          // If the user confirmed the cancellation
+                                          if (confirm == true) {
+                                            bool control = await CancaledAppointmentService.CancaledAppointment(aktifrandevular![index].randevuId!);
+                                            print("control :$control");
+                                            print("merhab");
+                                            if (control) {
+                                              // İptal edilen randevuyu provider'a ekle
+                                              var iptalRandevuProvider = Provider.of<IptalRandevuProvider>(context, listen: false);
+                                              var appointmentProvider = Provider.of<AppointmentProvider>(context, listen: false);
+                                              appointmentProvider.removeAppointment(appointment.randevuId!);
+                                              iptalRandevuProvider.iptalEdilenRandevuEkle(Mycancelappointment(
+                                                randevuId: aktifrandevular![index].randevuId,
+                                                hizmetId: aktifrandevular![index].hizmetId,
+                                                // Diğer alanlar...
+                                              ));
+                                            }
+                                            setState(() {});
                                           }
-                                          setState(() {});
                                         },
                                       );
+                                      // return AppointmentCard(
+                                      //   buttonText: "Randevu İptal",
+                                      //   title: bet.tesisbilgisimodel?.tesisAd ?? "",
+                                      //   subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
+                                      //   date: appointment.baslangicTarihi?.split(" ").first.toString() ?? "boş",
+                                      //   startTime: bet.hizmetbilgisimodel?.aktifsaatBaslangic ?? "",
+                                      //   endTime: bet.hizmetbilgisimodel?.aktifsaatBitis ?? "",
+                                      //   onButtonPressed: () async {
+                                      //     bool control = await CancaledAppointmentService.CancaledAppointment(aktifrandevular![index].randevuId!);
+                                      //     print("control :$control");
+                                      //     print("merhab");
+                                      //     if (control) {
+                                      //       // İptal edilen randevuyu provider'a ekle
+                                      //       var iptalRandevuProvider = Provider.of<IptalRandevuProvider>(context, listen: false);
+                                      //       var appointmentProvider = Provider.of<AppointmentProvider>(context, listen: false);
+                                      //       appointmentProvider.removeAppointment(appointment.randevuId!);
+                                      //       iptalRandevuProvider.iptalEdilenRandevuEkle(Mycancelappointment(
+                                      //         randevuId: aktifrandevular![index].randevuId,
+                                      //         hizmetId: aktifrandevular![index].hizmetId,
+                                      //         // Diğer alanlar...
+                                      //       ));
+                                      //     }
+                                      //     setState(() {});
+                                      //   },
+                                      // );
                                     } else {
                                       return const Center(child: Text('Veri bulunamadı'));
                                     }

@@ -1,33 +1,35 @@
 import 'dart:convert';
 import 'dart:developer';
+
 import 'package:armiyaapp/data/app_shared_preference.dart';
 import 'package:armiyaapp/model/usermodel.dart';
 import 'package:armiyaapp/navigator/custom_navigator.dart';
 import 'package:armiyaapp/services/auth_service.dart';
+import 'package:armiyaapp/services/forgot_service.dart';
 import 'package:armiyaapp/services/markaHelper.dart';
+import 'package:armiyaapp/view/forgotpassword.dart';
 import 'package:armiyaapp/view/home_page.dart';
+import 'package:armiyaapp/view/login.dart';
 import 'package:flutter/material.dart';
 
-class SelectMarka extends StatefulWidget {
-  const SelectMarka({
+class SelectMarkaTwo extends StatefulWidget {
+  const SelectMarkaTwo({
     super.key,
+    required this.kullaniciadi,
     required this.markalar,
-    required this.email,
-    required this.password,
   });
 
   final List<Marka> markalar;
-  final String email;
-  final String password;
+  final String kullaniciadi;
 
   @override
-  State<SelectMarka> createState() => _SelectMarkaState();
+  State<SelectMarkaTwo> createState() => _SelectMarkaState();
 }
 
-class _SelectMarkaState extends State<SelectMarka> {
+class _SelectMarkaState extends State<SelectMarkaTwo> {
   final AppNavigator nav = AppNavigator.instance;
   final SharedDataService _sharedDataService = SharedDataService();
-  final AuthService _authService = AuthService();
+  final ForgotService _forgotPassword = ForgotService();
   bool isLoading = false;
   String? seciliMarka;
   List<Marka> get markalar => widget.markalar;
@@ -36,47 +38,40 @@ class _SelectMarkaState extends State<SelectMarka> {
     if (markalar.length == 1) {
       var marka = markalar.first;
       MarkaHelper.setMarka(marka.dbUser);
-      login(context, marka.dbName, marka.dbUser);
+      print("ben calısmak sıtıyom");
+      forgot(context, marka.dbUser);
     }
   }
 
-  Future<void> login(BuildContext context, String? dbName, String? dbUser) async {
+  Future<void> forgot(BuildContext context, String? dbName) async {
     setState(() {
       isLoading = true;
     });
     try {
-      final response = await _authService.login(widget.email, widget.password, dbName, dbUser);
-      log("response: ${response.body}");
-      if (response.statusCode == 200) {
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
-        UserModel user = UserModel.fromJson(data);
-        if (user.status == true) {
-          SharedDataService().saveLoginData(utf8.decode(response.bodyBytes));
-          MarkaHelper.setMarka(user.markaadi!);
-
-          nav.pushReplacement(
-            context: context,
-            routePage: HomePage(
-              key: homePageKey,
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${user.message}')),
-          );
-        }
+      final response = await _forgotPassword.forgotPassword(widget.kullaniciadi, dbName);
+      log(response.body);
+      bool isValid = response.body.contains("OK");
+      if (response.statusCode == 200 && isValid) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Şifrenizi sıfırlamaya devam etmek için kayıtlı mail adresinizi kontrol edin.')),
+        );
+        nav.pushReplacement(
+          context: context,
+          routePage: LoginPage(),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Giriş başarısız! ${response.statusCode}')),
         );
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Bir hata oluştu: $e')),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -113,7 +108,7 @@ class _SelectMarkaState extends State<SelectMarka> {
                         return GestureDetector(
                           onTap: () {
                             // MarkaHelper.setMarka(marka.db_user);
-                            login(context, marka.dbName, marka.dbUser); //////////////////////burasııı
+                            forgot(context, marka.dbName);
                           },
                           child: Card(
                             elevation: 4,

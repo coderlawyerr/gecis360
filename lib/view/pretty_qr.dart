@@ -160,9 +160,12 @@ class _PrettyQrHomePageState extends State<PrettyQrHomePage> {
                             height: 15,
                           ),
                           const Text(
-                            "Her 5 sn'de bir yenileniyor",
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                            "Qr kod her 5 saniyede bir yenilenmektedir.Randevu saatiniz dışında giriş yapamazsınız.",
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
                             textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 5,
                           ),
                         ],
                       ),

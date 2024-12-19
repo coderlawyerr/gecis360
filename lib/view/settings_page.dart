@@ -4,6 +4,7 @@ import 'package:armiyaapp/data/app_shared_preference.dart';
 import 'package:armiyaapp/model/usermodel.dart';
 import 'package:armiyaapp/services/auth_service.dart';
 import 'package:armiyaapp/utils/constants.dart';
+import 'package:armiyaapp/view/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'edit_page.dart';
@@ -39,6 +40,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: userModel == null
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -103,50 +105,59 @@ class _SettingPageState extends State<SettingPage> {
                   const SizedBox(
                     height: 30,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ListTile(
-                      leading: const Icon(Icons.door_back_door_outlined),
-                      title: const Text("Çıkış Yap", style: TextStyle(fontSize: 15)),
-                      tileColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      onTap: () {
-                        // Çıkış yapmadan önce onay penceresi göster
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Çıkış Yapmak Üzeresiniz?"),
-                              content: const Text("Çıkış yapmak istediğinizden emin misiniz?"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    // Çıkış yapmaya karar verildiğinde LoginPage'e yönlendir
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => LoginPage()),
-                                    );
-                                  },
-                                  child: Text(
-                                    "Evet",
-                                    style: TextStyle(color: primaryColor),
+                  Card(
+                    elevation: 4,
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: ListTile(
+                        leading: const Icon(Icons.door_back_door_outlined),
+                        title: const Text("Çıkış Yap", style: TextStyle(fontSize: 15)),
+                        tileColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        onTap: () {
+                          // Çıkış yapmadan önce onay penceresi göster
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Çıkış Yapmak Üzeresiniz?"),
+                                content: const Text("Çıkış yapmak istediğinizden emin misiniz?"),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
+                                      // Çıkış yapmaya karar verildiğinde LoginPage'e yönlendir
+
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => LoginPage(
+                                                  key: homePageKey,
+                                                )),
+                                      );
+                                    },
+                                    child: Text(
+                                      "Evet",
+                                      style: TextStyle(color: primaryColor),
+                                    ),
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    // Dialogu kapat
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text(
-                                    "Hayır",
-                                    style: TextStyle(color: Colors.grey),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Dialogu kapat
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(
+                                      "Hayır",
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],

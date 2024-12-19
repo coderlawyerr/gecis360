@@ -1,14 +1,19 @@
+import 'dart:io';
+
 import 'package:armiyaapp/providers/appoinment/appoinment_provider.dart';
 import 'package:armiyaapp/providers/appoinment/membergroups_provider.dart';
 import 'package:armiyaapp/providers/appoinment/misafir_add_provider.dart';
 import 'package:armiyaapp/providers/iptal_randevu_provider.dart';
 import 'package:armiyaapp/view/onboarding/LogoAnimationScreen.dart';
+import 'package:armiyaapp/view/your_records.dart';
+import 'package:armiyaapp/widget/recordwiget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 Future<void> main() async {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(providers: [
@@ -43,5 +48,12 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [Locale('tr')],
       home: LogoAnimationScreen(),
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }

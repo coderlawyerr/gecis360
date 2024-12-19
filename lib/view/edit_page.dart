@@ -25,7 +25,30 @@ class _EditProfilPageState extends State<EditProfilPage> {
   final TextEditingController oldpassword = TextEditingController();
   final TextEditingController newpassword = TextEditingController();
   final TextEditingController repaetnewpassword = TextEditingController();
+  bool _isPasswordObscure = true; // Şifreyi gizlemek için
+  bool _isNewPasswordObscure = true; // Yeni şifreyi gizlemek için
+  bool _isRepeatPasswordObscure = true; // Yeni şifreyi tekrar gizlemek için
   UserModel? userModel;
+  // Mevcut şifreyi göster/gizle
+  void _toggleOldPasswordVisibility() {
+    setState(() {
+      _isPasswordObscure = !_isPasswordObscure;
+    });
+  }
+
+  // Yeni şifreyi göster/gizle
+  void _toggleNewPasswordVisibility() {
+    setState(() {
+      _isNewPasswordObscure = !_isNewPasswordObscure;
+    });
+  }
+
+  // Şifreyi tekrar göster/gizle
+  void _toggleRepeatPasswordVisibility() {
+    setState(() {
+      _isRepeatPasswordObscure = !_isRepeatPasswordObscure;
+    });
+  }
 
   @override
   void initState() {
@@ -156,191 +179,222 @@ class _EditProfilPageState extends State<EditProfilPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color.fromARGB(255, 216, 216, 216),
+        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.grey),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      backgroundColor: const Color.fromARGB(255, 216, 216, 216),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10, right: 15, left: 15),
-          child: Column(
-            children: [
-              Card(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          ClipOval(
-                            child: _base64String != null
-                                ? Image.memory(
-                                    base64Decode(_base64String!),
-                                    height: 100, // Yuvarlak görüntü için boyut
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Container(),
-                          ),
-                          Positioned(
-                            bottom: -10,
-                            child: IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () async {
-                                final ImagePicker picker = ImagePicker();
-                                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-                                if (image != null) {
-                                  final bytes = await File(image.path).readAsBytes();
-
-                                  setState(() {
-                                    _base64String = base64Encode(bytes);
-                                    _selectedImage = File(image.path); // Resmi kaydet
-                                  });
-
-                                  print('Base64 String: $_base64String');
-                                }
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Divider(
-                        color: Colors.grey,
-                        thickness: 2,
-                      ),
-                      // İsim Soyisim
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextField(
-                          controller: namesurname,
-                          enabled: false, // Değiştirilemez
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                            hintText: "İsim Soyisim",
-                            suffixIcon: Icon(Icons.person, color: primaryColor),
-
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
+        child: Card(
+          elevation: 10,
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, right: 15, left: 15),
+            child: Column(
+              children: [
+                Card(
+                  elevation: 4,
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: const Color.fromARGB(255, 216, 215, 215),
+                          radius: 50,
                         ),
-                      ),
-                      // Telefon
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextField(
-                          controller: phone,
-                          enabled: false, // Değiştirilemez
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                            hintText: "Telefon",
-                            suffixIcon: Icon(Icons.phone, color: primaryColor),
+                        Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            ClipOval(
+                              child: _base64String != null
+                                  ? Image.memory(
+                                      base64Decode(_base64String!),
+                                      height: 100, // Yuvarlak görüntü için boyut
+                                      width: 100,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(),
+                            ),
+                            Positioned(
+                              bottom: -10,
+                              child: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () async {
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3),
+                                  if (image != null) {
+                                    final bytes = await File(image.path).readAsBytes();
+
+                                    setState(() {
+                                      _base64String = base64Encode(bytes);
+                                      _selectedImage = File(image.path); // Resmi kaydet
+                                    });
+
+                                    print('Base64 String: $_base64String');
+                                  }
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 2,
+                        ),
+                        // İsim Soyisim
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextField(
+                            controller: namesurname,
+                            enabled: false, // Değiştirilemez
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                              hintText: "İsim Soyisim",
+                              suffixIcon: Icon(Icons.person, color: primaryColor),
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      // Eposta
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextField(
-                          controller: mail,
-                          enabled: false, // Değiştirilemez
-                          decoration: InputDecoration(
-                            hintText: "Eposta",
-                            suffixIcon: Icon(Icons.mail, color: primaryColor),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3),
+                        // Telefon
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextField(
+                            controller: phone,
+                            enabled: false, // Değiştirilemez
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                              hintText: "Telefon",
+                              suffixIcon: Icon(Icons.phone, color: primaryColor),
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Divider(
-                        color: Colors.grey,
-                        thickness: 2,
-                      ),
-
-                      ///mevcut sıfreyı yaz
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextField(
-                          controller: oldpassword,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                            hintText: "Mevcut Şifreni Yaz",
-                            suffixIcon: Icon(Icons.password, color: primaryColor),
-
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3),
+                        // Eposta
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextField(
+                            controller: mail,
+                            enabled: false, // Değiştirilemez
+                            decoration: InputDecoration(
+                              hintText: "Eposta",
+                              suffixIcon: Icon(Icons.mail, color: primaryColor),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      // Yeni Şifre
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextField(
-                          controller: newpassword,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                            hintText: "Yeni Şifre",
-                            suffixIcon: Icon(Icons.password, color: primaryColor),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 2,
+                        ),
 
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3),
+                        ///mevcut sıfreyı yaz
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextField(
+                            obscureText: _isPasswordObscure, // Mevcut şifreyi gizle
+
+                            controller: oldpassword,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                              hintText: "Mevcut Şifreni Yaz",
+
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isPasswordObscure ? Icons.visibility_off : Icons.visibility,
+                                  color: primaryColor,
+                                ),
+                                onPressed: _toggleOldPasswordVisibility,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      // Şifre Tekrar
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextField(
-                          controller: repaetnewpassword,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                            hintText: "Şifre Tekrar Yaz",
-                            suffixIcon: Icon(Icons.password, color: primaryColor),
+                        // Yeni Şifre
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextField(
+                            obscureText: _isNewPasswordObscure, // Mevcut şifreyi gizle
+                            controller: newpassword,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                              hintText: "Yeni Şifre",
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isNewPasswordObscure ? Icons.visibility_off : Icons.visibility,
+                                  color: primaryColor,
+                                ),
+                                onPressed: _toggleNewPasswordVisibility, // Göz simgesine tıklandığında şifreyi göster/gizle
+                              ),
 
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(3),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      // Kaydet Butonu
-                      TextButton(
-                        onPressed: () {
-                          updatePassword();
-                          // Şifre kaydetme işlemi yapılabilir
-                        },
-                        child: Text(
-                          "Kaydet",
-                          style: TextStyle(color: primaryColor),
+                        // Şifre Tekrar
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextField(
+                            obscureText: _isRepeatPasswordObscure, // Mevcut şifreyi gizle
+                            controller: repaetnewpassword,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
+                              hintText: "Şifre Tekrar Yaz",
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isRepeatPasswordObscure ? Icons.visibility_off : Icons.visibility,
+                                  color: primaryColor,
+                                ),
+                                onPressed: _toggleRepeatPasswordVisibility, // Göz simgesine tıklandığında şifreyi göster/gizle
+                              ),
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                        // Kaydet Butonu
+                        TextButton(
+                          onPressed: () {
+                            updatePassword();
+                            // Şifre kaydetme işlemi yapılabilir
+                          },
+                          child: Text(
+                            "Kaydet",
+                            style: TextStyle(color: primaryColor),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

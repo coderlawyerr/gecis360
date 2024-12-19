@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:armiyaapp/model/usermodel.dart';
 import 'package:http/http.dart' as http;
@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 class AuthService {
   UserModel? myusermodel;
 
-  Future<http.Response> login(String email, String password, [String? marka_db_user]) async {
-  final String baseUrl = 'https://${marka_db_user ?? "demo"}.gecis360.com/api/login/index.php';
+  Future<http.Response> login(String email, String password, [String? dbName, String? dbUser]) async {
+    final String baseUrl = 'https://${dbUser ?? "demo"}.gecis360.com/api/login/index.php';
     final String url = baseUrl;
 
     try {
@@ -19,15 +19,20 @@ class AuthService {
         body: {
           'kullaniciadi': email,
           'sifre': password,
-          if (marka_db_user != null) 'db_user': marka_db_user,
+          if (dbName != null) 'db_name': dbName, ////////////////////
           'token': "Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as",
         },
       );
 
       return response;
     } catch (e) {
+      log({
+        'kullaniciadi': email,
+        'sifre': password,
+        'db_name': dbName,
+        'token': "Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as",
+      }.toString());
       throw Exception('Login işlemi sırasında hata oluştu: $e');
     }
   }
-  
 }

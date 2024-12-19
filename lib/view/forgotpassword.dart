@@ -1,6 +1,13 @@
+import 'dart:convert';
+
 import 'package:armiyaapp/const/const.dart';
+import 'package:armiyaapp/model/usermodel.dart';
+import 'package:armiyaapp/navigator/custom_navigator.dart';
 import 'package:armiyaapp/services/forgot_service.dart';
-import 'package:armiyaapp/widget/animasyonwidget.dart';
+import 'package:armiyaapp/view/login.dart';
+
+import 'package:armiyaapp/view/select_marka_two.dart';
+
 import 'package:flutter/material.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -13,6 +20,41 @@ class ForgotPassword extends StatefulWidget {
 class _ForgotPasswordState extends State<ForgotPassword> {
   TextEditingController emailController = TextEditingController();
   ForgotService _forgotService = ForgotService();
+  Future<void> handleForgotPasswordResponse() async {
+    final response = await _forgotService.forgotPassword(emailController.text.trim());
+
+    if (response.statusCode == 200) {
+      final responseBody = response.body;
+
+      try {
+        // Yanıtın JSON olduğunu kontrol et
+        List<dynamic> jsonData = jsonDecode(responseBody); // Liste olarak çözümle
+
+        // Markaları liste halinde alıyoruz
+        List<Marka> markalar = jsonData.map((markaJson) => Marka.fromJson(markaJson)).toList();
+
+        // Markaları ekrana yazdırmak
+        markalar.forEach((marka) {
+          print('Marka Adı: ${marka.adi}, db_user: ${marka.dbUser}, db_name: ${marka.dbName}');
+        });
+
+        // Başarı mesajı
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Markalar başarıyla alındı')),
+        );
+      } catch (e) {
+        print('Hata: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Yanıt işlenirken bir hata oluştu')),
+        );
+      }
+    } else {
+      print('API Hatası: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('API Hatası: ${response.statusCode}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +90,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 ],
               ),
               SizedBox(height: 50),
-              // ZiplamaAnimationWidget(
-              //   imagePath: 'assets/mylock.png', // Burada resmin yolunu veriyoruz
-              // ),
               Image(
                 image: AssetImage("assets/lock.png"),
                 height: 180,
@@ -76,44 +115,72 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               MaterialButton(
                 onPressed: () async {
                   if (emailController.text.trim().isNotEmpty) {
-                    bool kontrol = await _forgotService.forgotPassword(emailController.text.trim());
-                    if (kontrol == true) {
-                      final snackBar = SnackBar(
-                        content: Text("Başarılı!"),
-                        action: SnackBarAction(
-                          label: "Geri Al",
-                          onPressed: () {
-                            // Aksiyon yapılırsa çağırılacak işlem
-                            print("Geri al butonuna basıldı.");
-                          },
-                        ),
-                        duration: Duration(seconds: 3), // Snackbar'ın görüneceği süre
-                      );
+                    try {
+                      final response = await _forgotService.forgotPassword(emailController.text.trim());
 
-                      // Snackbar'ı göster
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    } else {
-                      final snackBar = SnackBar(
-                        content: Text("Bu kullanıcı bulunamadı"),
-                        action: SnackBarAction(
-                          label: "Geri Al",
-                          onPressed: () {
-                            // Aksiyon yapılırsa çağırılacak işlem
-                            print("Geri al butonuna basıldı.");
-                          },
-                        ),
-                        duration: Duration(seconds: 3), // Snackbar'ın görüneceği süre
+                      print('Gelen Yanıt: ${response.body}'); // Yanıtın tamamını konsola yazdırıyoruz
+
+                      if (response.statusCode == 200) {
+                        bool isValid = response.body.contains("OK");
+                        if (isValid) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Şifreninz sıfırlamaya devam etmek için kayıtlı mail adresinizi kontrol edin.')),
+                          );
+                          AppNavigator.instance.pushReplacement(
+                            context: context,
+                            routePage: LoginPage(),
+                          );
+                          return;
+                        }
+                        // Yanıtın JSON olduğunu kontrol et
+                        final responseBody = utf8.decode(response.bodyBytes);
+                        print('Dönüşen Yanıt: $responseBody'); // Yanıtı kontrol et
+
+                        // JSON'u çözümle
+                        List<dynamic> responseData = jsonDecode(responseBody); // Burada liste olarak çözümle
+
+                        // Gelen JSON'un bir liste olduğunu kontrol et
+                        if (responseData is List) {
+                          final markalar = responseData.map((marka) => Marka.fromJson(marka)).toList();
+
+                          if (markalar.isNotEmpty) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SelectMarkaTwo(
+                                  markalar: markalar,
+                                  kullaniciadi: emailController.text.trim(),
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Gelen JSON boş bir listeyse
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Kullanıcıya ait marka bulunamadı.')),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Beklenmeyen veri formatı alındı.')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Şifre sıfırlama başarısız! ${response.statusCode}')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Bir hata oluştu: $e')),
                       );
-                      // Snackbar'ı göster
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   }
                 },
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Kenarların oval olma miktarını burada ayarlayın
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 color: primaryColor,
-                child: Text(
+                child: const Text(
                   'Şifremi Yenile',
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
@@ -124,160 +191,23 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       ),
     );
   }
+
+  Future<void> forgot(BuildContext context, String? db_name) async {
+    final AppNavigator nav = AppNavigator.instance;
+    try {
+      final response = await _forgotService.forgotPassword(emailController.text, db_name);
+      print(response.body);
+      bool isValid = response.body.contains("OK");
+      if (response.statusCode == 200 && isValid) {
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Giriş başarısız! ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Bir hata oluştu: $e')),
+      );
+    }
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import 'package:armiyaapp/const/const.dart';
-// import 'package:armiyaapp/services/forgot_service.dart';
-// import 'package:flutter/material.dart';
-
-// class ForgotPassword extends StatefulWidget {
-//   const ForgotPassword({super.key});
-
-//   @override
-//   State<ForgotPassword> createState() => _ForgotPasswordState();
-// }
-
-// class _ForgotPasswordState extends State<ForgotPassword> {
-//   TextEditingController emailController = TextEditingController();
-//   ForgotService _forgotService = ForgotService();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         backgroundColor: Colors.white,
-//         title: Text(
-//           'Şifremi Unuttum',
-//           style: TextStyle(
-//             color: primaryColor,
-//             fontSize: 20,
-//             fontWeight: FontWeight.bold,
-//           ),
-//         ),
-//       ),
-//       body: SafeArea(
-//         child: Padding(
-//           padding: const EdgeInsets.only(top: 70, left: 20, right: 20),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             mainAxisAlignment: MainAxisAlignment.start,
-//             children: [
-//               const Center(
-//                 child: Text(
-//                   "Şifresini unuttuğun e posta adresini aşağıya yazınız.",
-//                   style: TextStyle(fontWeight: FontWeight.normal, color: Colors.grey, fontSize: 20),
-//                 ),
-//               ),
-//               const SizedBox(height: 50),
-//               TextFormField(
-//                 controller: emailController,
-//                 keyboardType: TextInputType.emailAddress,
-//                 decoration: InputDecoration(
-//                   hintText: 'E posta adresini yaz',
-//                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(26)),
-//                 ),
-//               ),
-//               const SizedBox(height: 25),
-//               MaterialButton(
-//                 onPressed: () async {
-//                   if (emailController.text.trim().isNotEmpty) {
-//                     bool kontrol = await _forgotService.forgotPassword(emailController.text.trim());
-//                     if (kontrol == true) {
-//                       final snackBar = SnackBar(
-//                         content: Text("Başarılı!"),
-//                         action: SnackBarAction(
-//                           label: "Geri Al",
-//                           onPressed: () {
-//                             // Aksiyon yapılırsa çağırılacak işlem
-//                             print("Geri al butonuna basıldı.");
-//                           },
-//                         ),
-//                         duration: Duration(seconds: 3), // Snackbar'ın görüneceği süre
-//                       );
-
-//                       // Snackbar'ı göster
-//                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-//                     } else {
-//                       final snackBar = SnackBar(
-//                         content: Text("Bu kullanıcı bulunamadı"),
-//                         action: SnackBarAction(
-//                           label: "Geri Al",
-//                           onPressed: () {
-//                             // Aksiyon yapılırsa çağırılacak işlem
-//                             print("Geri al butonuna basıldı.");
-//                           },
-//                         ),
-//                         duration: Duration(seconds: 3), // Snackbar'ın görüneceği süre
-//                       );
-//                       // Snackbar'ı göster
-//                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-//                     }
-//                   }
-//                 },
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(10), // Kenarların oval olma miktarını burada ayarlayın
-//                 ),
-//                 color: primaryColor,
-//                 child: Text(
-//                   'Şifreyi Yenile',
-//                   style: TextStyle(color: Colors.white),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-

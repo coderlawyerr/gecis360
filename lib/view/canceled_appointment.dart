@@ -69,10 +69,7 @@ class _CanceledAppointment extends State<CanceledAppointment> {
       'PHPSESSID': '0ms1fk84dssk9s3mtfmmdsjq24',
     };
 
-    final body = {
-      'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as',
-      'kullanicibilgisi': appointment.kullaniciId?.toString()
-    };
+    final body = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'kullanicibilgisi': appointment.kullaniciId?.toString()};
     final body1 = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'tesisbilgisi': appointment.tesisId?.toString()};
     final body2 = {'token': 'Ntss5snV5IcOngbykluMqLqHqQzgqe5zo5as', 'hizmetbilgisi': appointment.hizmetId?.toString()};
 
@@ -165,7 +162,7 @@ class _CanceledAppointment extends State<CanceledAppointment> {
                                       final bet = data2;
 
                                       return AppointmentCard(
-                                        buttonText: "İptal Edilen Randevu",
+                                        buttonText: "İptal Edildi",
                                         title: bet.tesisbilgisimodel?.tesisAd ?? "",
                                         subtitle: bet.hizmetbilgisimodel?.hizmetAd ?? "",
                                         date: appointment.timestamp?.split(" ").first.toString() ?? "",

@@ -1,4 +1,6 @@
+// import 'package:armiyaapp/const/const.dart';
 // import 'package:armiyaapp/providers/appoinment/misafir_add_provider.dart';
+// import 'package:armiyaapp/utils/constants.dart';
 // import 'package:flutter/material.dart';
 // import 'package:http/http.dart' as http;
 // import 'package:provider/provider.dart';
@@ -115,7 +117,7 @@
 
 //     return Card(
 //       elevation: 10,
-//       color: Color.fromARGB(255, 203, 207, 243),
+//       color: const Color.fromARGB(255, 220, 219, 219),
 //       margin: EdgeInsets.all(10),
 //       child: Padding(
 //         padding: const EdgeInsets.all(10),
@@ -128,7 +130,7 @@
 //             Row(
 //               children: [
 //                 IconButton(
-//                   icon: Icon(Icons.delete, color: Colors.red),
+//                   icon: Icon(Icons.delete, color: Colors.orange),
 //                   onPressed: () {
 //                     _removeMisafirFromPrefs(tcController.text);
 //                   },
@@ -172,6 +174,13 @@
 //     );
 //   }
 
+//   bool _isValidEmail(String email) {
+//     final RegExp emailRegExp = RegExp(
+//       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+//     );
+//     return emailRegExp.hasMatch(email);
+//   }
+
 //   void _addNewMisafirCard() {
 //     tcController.clear();
 //     adSoyadController.clear();
@@ -210,13 +219,20 @@
 //             TextButton(
 //               onPressed: () {
 //                 if (tcController.text.isNotEmpty && adSoyadController.text.isNotEmpty && telefonController.text.isNotEmpty && emailController.text.isNotEmpty) {
-//                   _sendData(
-//                     tcController.text,
-//                     adSoyadController.text,
-//                     telefonController.text,
-//                     emailController.text,
-//                   );
-//                   Navigator.pop(context);
+//                   if (!_isValidEmail(emailController.text)) {
+//                     // E-posta geçersizse hata mesajı göster
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       SnackBar(content: Text('Lütfen geçerli bir e-posta adresi girin.')),
+//                     );
+//                   } else {
+//                     _sendData(
+//                       tcController.text,
+//                       adSoyadController.text,
+//                       telefonController.text,
+//                       emailController.text,
+//                     );
+//                     Navigator.pop(context);
+//                   }
 //                 } else {
 //                   print('Tüm alanların doldurulması gereklidir.');
 //                 }
@@ -265,8 +281,10 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
+//       resizeToAvoidBottomInset: false,
 //       backgroundColor: Colors.white,
 //       appBar: AppBar(
+//         backgroundColor: Colors.white,
 //         title: Text("Misafir Ekleme"),
 //       ),
 //       body: SingleChildScrollView(
@@ -280,7 +298,7 @@
 //         children: [
 //           ElevatedButton(
 //             style: ElevatedButton.styleFrom(
-//               backgroundColor: Color.fromARGB(255, 134, 147, 247),
+//               backgroundColor: primaryColor,
 //               minimumSize: Size(30, 55), // Genişlik ve yükseklik
 //               shape: RoundedRectangleBorder(
 //                 borderRadius: BorderRadius.circular(8), // Köşe yuvarlama
@@ -294,12 +312,12 @@
 //           ),
 //           SizedBox(width: 10),
 //           Padding(
-//             padding: const EdgeInsets.only(top: 10),
+//             padding: const EdgeInsets.only(top: 0),
 //             child: SizedBox(
 //               width: 85, // İstediğiniz genişlik
 //               height: 55, // İstediğiniz yükseklik
 //               child: FloatingActionButton(
-//                 backgroundColor: Color.fromARGB(255, 134, 147, 247), // Arka plan rengi
+//                 backgroundColor: primaryColor, // Arka plan rengi
 //                 onPressed: _addNewMisafirCard,
 //                 child: Icon(
 //                   Icons.add,
@@ -317,6 +335,7 @@
 //   }
 // }
 
+import 'package:armiyaapp/const/const.dart';
 import 'package:armiyaapp/providers/appoinment/misafir_add_provider.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -435,7 +454,7 @@ class _MisafirAddState extends State<MisafirAdd> {
 
     return Card(
       elevation: 10,
-      color: Color.fromARGB(255, 203, 207, 243),
+      color: const Color.fromARGB(255, 220, 219, 219),
       margin: EdgeInsets.all(10),
       child: Padding(
         padding: const EdgeInsets.all(10),
@@ -448,7 +467,7 @@ class _MisafirAddState extends State<MisafirAdd> {
             Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: Icon(Icons.delete, color: Colors.orange),
                   onPressed: () {
                     _removeMisafirFromPrefs(tcController.text);
                   },
@@ -480,16 +499,45 @@ class _MisafirAddState extends State<MisafirAdd> {
     );
   }
 
+  // Widget _buildTextField({required String label, required TextEditingController controller}) {
+  //   return TextField(
+  //     controller: controller,
+  //     decoration: InputDecoration(
+  //       labelText: label,
+  //       border: OutlineInputBorder(),
+  //     ),
+  //     keyboardType: label == 'Misafir TC' || label == 'Telefon Numarası' ? TextInputType.number : TextInputType.text,
+  //     inputFormatters: label == 'Misafir TC' || label == 'Telefon Numarası' ? [FilteringTextInputFormatter.digitsOnly] : [],
+  //   );
+  // }
   Widget _buildTextField({required String label, required TextEditingController controller}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(),
+        prefixText: label == 'Telefon Numarası' ? '+90 ' : null, // Telefon için ön ek
       ),
       keyboardType: label == 'Misafir TC' || label == 'Telefon Numarası' ? TextInputType.number : TextInputType.text,
-      inputFormatters: label == 'Misafir TC' || label == 'Telefon Numarası' ? [FilteringTextInputFormatter.digitsOnly] : [],
+      inputFormatters: label == 'Telefon Numarası'
+          ? [
+              FilteringTextInputFormatter.digitsOnly, // Sadece rakamlara izin verir
+              LengthLimitingTextInputFormatter(10), // 10 rakam sınırı
+            ]
+          : label == 'Misafir TC'
+              ? [
+                  FilteringTextInputFormatter.digitsOnly, // Sadece rakamlara izin verir
+                  LengthLimitingTextInputFormatter(11), // 11 rakam sınırı
+                ]
+              : [],
     );
+  }
+
+  bool _isValidEmail(String email) {
+    final RegExp emailRegExp = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegExp.hasMatch(email);
   }
 
   void _addNewMisafirCard() {
@@ -530,13 +578,20 @@ class _MisafirAddState extends State<MisafirAdd> {
             TextButton(
               onPressed: () {
                 if (tcController.text.isNotEmpty && adSoyadController.text.isNotEmpty && telefonController.text.isNotEmpty && emailController.text.isNotEmpty) {
-                  _sendData(
-                    tcController.text,
-                    adSoyadController.text,
-                    telefonController.text,
-                    emailController.text,
-                  );
-                  Navigator.pop(context);
+                  if (!_isValidEmail(emailController.text)) {
+                    // E-posta geçersizse hata mesajı göster
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lütfen geçerli bir e-posta adresi girin.')),
+                    );
+                  } else {
+                    _sendData(
+                      tcController.text,
+                      adSoyadController.text,
+                      telefonController.text,
+                      emailController.text,
+                    );
+                    Navigator.pop(context);
+                  }
                 } else {
                   print('Tüm alanların doldurulması gereklidir.');
                 }
@@ -602,7 +657,7 @@ class _MisafirAddState extends State<MisafirAdd> {
         children: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color.fromARGB(255, 134, 147, 247),
+              backgroundColor: primaryColor,
               minimumSize: Size(30, 55), // Genişlik ve yükseklik
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8), // Köşe yuvarlama
@@ -621,7 +676,7 @@ class _MisafirAddState extends State<MisafirAdd> {
               width: 85, // İstediğiniz genişlik
               height: 55, // İstediğiniz yükseklik
               child: FloatingActionButton(
-                backgroundColor: Color.fromARGB(255, 134, 147, 247), // Arka plan rengi
+                backgroundColor: primaryColor, // Arka plan rengi
                 onPressed: _addNewMisafirCard,
                 child: Icon(
                   Icons.add,

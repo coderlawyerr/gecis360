@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../const/const.dart';
@@ -5,11 +6,11 @@ import '../const/const.dart';
 class AppointmentCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final String date; // Tarih String formatında (API'den geldiği gibi)
-  final String startTime; // Başlangıç saati
-  final String endTime; // Bitiş saati
-  final String buttonText;
-  final VoidCallback onButtonPressed;
+  final String date;
+  final String startTime;
+  final String endTime;
+  final String? buttonText; // Buton metni opsiyonel
+  final VoidCallback? onButtonPressed; // Buton işlevi opsiyonel
 
   const AppointmentCard({
     Key? key,
@@ -18,8 +19,8 @@ class AppointmentCard extends StatelessWidget {
     required this.date,
     required this.startTime,
     required this.endTime,
-    required this.buttonText,
-    required this.onButtonPressed,
+    this.buttonText, // Varsayılan olarak null
+    this.onButtonPressed, // Varsayılan olarak null
   }) : super(key: key);
 
   @override
@@ -50,80 +51,92 @@ class AppointmentCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onButtonPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 193, 196, 231),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 1, color: Color.fromARGB(255, 70, 88, 255)),
-                  borderRadius: BorderRadius.circular(8),
+            // Buton metni ve onPressed fonksiyonu null kontrolü ile gösteriliyor
+            if (buttonText != null && onButtonPressed != null)
+              ElevatedButton(
+                onPressed: onButtonPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF6BAB5),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: Color(0xFFE85347)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  buttonText!,
+                  style: TextStyle(color: Color(0xFFE85347)),
                 ),
               ),
-              child: Text(
-                buttonText,
-                style: const TextStyle(color: Color.fromARGB(255, 70, 88, 255)),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  // Tarihi formatlayan fonksiyon (API'den gelen String'i işler)
-  String _formatDate(String date) {
-    try {
-      final parsedDate = DateTime.parse(date); // String'i DateTime'a dönüştür
-      return DateFormat('dd/MM/yyyy').format(parsedDate); // İstenen formata çevir
-    } catch (e) {
-      return date; // Hata olursa orijinal tarihi göster
-    }
+  // Bilgi kutusu oluşturma
+  Widget _buildInfoBox(String text, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: primaryColor),
+        Text(text, style: TextStyle(color: primaryColor)),
+      ],
+    );
   }
+}
 
-  // Saat aralığını formatlayan fonksiyon
-  String _formatTimeRange(String start, String end) {
-    try {
-      /*
+// Tarihi formatlayan fonksiyon (API'den gelen String'i işler)
+String _formatDate(String date) {
+  try {
+    final parsedDate = DateTime.parse(date); // String'i DateTime'a dönüştür
+    return DateFormat('dd/MM/yyyy').format(parsedDate); // İstenen formata çevir
+  } catch (e) {
+    return date; // Hata olursa orijinal tarihi göster
+  }
+}
+
+// Saat aralığını formatlayan fonksiyon
+String _formatTimeRange(String start, String end) {
+  try {
+    /*
       final parsedStart = DateTime.parse('1970-01-01 $start:00');
       final parsedEnd = DateTime.parse('1970-01-01 $end:00');
       final formattedStart = DateFormat('HH:mm').format(parsedStart);
       final formattedEnd = DateFormat('HH:mm').format(parsedEnd);
       return '$formattedStart - $formattedEnd'; // Örnek: "12:00 - 12:30"*/
-      return '$start - $end';
-    } catch (e) {
-      return '$start - $end'; // Hata olursa orijinal değerleri göster
-    }
+    return '$start - $end';
+  } catch (e) {
+    return '$start - $end'; // Hata olursa orijinal değerleri göster
   }
+}
 
-  // Bilgi kutusu tasarımı
-  Widget _buildInfoBox(String text, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: primaryColor),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-        ],
-      ),
-    );
-  }
+// Bilgi kutusu tasarımı
+Widget _buildInfoBox(String text, IconData icon) {
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, color: primaryColor),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+      ],
+    ),
+  );
+}
 
-  // Saatin yalnızca "HH:mm" kısmını almak için yardımcı bir fonksiyon
-  String _extractTime(String? dateTime) {
-    if (dateTime == null || dateTime.isEmpty) return "Bilinmiyor";
-    try {
-      return dateTime.split(" ").last.substring(0, 5); // "HH:mm" kısmını alır
-    } catch (e) {
-      return "Bilinmiyor";
-    }
+// Saatin yalnızca "HH:mm" kısmını almak için yardımcı bir fonksiyon
+String _extractTime(String? dateTime) {
+  if (dateTime == null || dateTime.isEmpty) return "Bilinmiyor";
+  try {
+    return dateTime.split(" ").last.substring(0, 5); // "HH:mm" kısmını alır
+  } catch (e) {
+    return "Bilinmiyor";
   }
 }
 

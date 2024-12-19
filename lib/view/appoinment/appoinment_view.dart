@@ -66,7 +66,7 @@ class _AppointmentViewState extends State<AppointmentView> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
         child: Consumer<AppointmentProvider>(
           builder: (context, provider, child) {
             if (provider.isLoading) {
@@ -86,22 +86,26 @@ class _AppointmentViewState extends State<AppointmentView> {
                       'RANDEVU OLUŞTUR',
                       style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal, color: Colors.grey),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 45),
                     const Text('Tesis Seçimi', style: TextStyle(fontSize: 16, color: Colors.grey)),
                     const SizedBox(height: 10),
                     // 1. Tesis Seçimi Dropdown/// burda apıye ıstek atıyorum teısıs ıcın
                     Container(
-                      margin: const EdgeInsets.all(3),
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: const BorderRadius.all(Radius.circular(4))),
+                      margin: const EdgeInsets.all(1),
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: const BorderRadius.all(Radius.circular(4)),
+                      ),
                       child: DropdownButton<int>(
                         underline: const SizedBox(),
-                        hint: const Text(
-                          'Tesis Seçiniz',
-                          style: TextStyle(color: Colors.grey),
+                        hint: Padding(
+                          padding: const EdgeInsets.only(left: 8.0), // Yazıyı sağa kaydırmak için padding eklendi
+                          child: const Text(
+                            'Tesis Seçiniz!',
+                          ),
                         ),
                         value: appointmentProvider.selectedFacilityId,
-                        // hayır api ile ilgili değil
                         isExpanded: true,
                         items: appointmentProvider.facilities
                             .map((facility) => DropdownMenuItem<int>(
@@ -119,8 +123,6 @@ class _AppointmentViewState extends State<AppointmentView> {
                             appointmentProvider.setSelectedFacility(value);
                             try {
                               await appointmentProvider.fetchServices(value);
-                              // Hizmetler yüklendiğinde takvimi yeniden göster
-
                               appointmentProvider.resetToCalendar(); // Takvimi sıfırla
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -136,11 +138,20 @@ class _AppointmentViewState extends State<AppointmentView> {
                         },
                       ),
                     ),
+
                     const SizedBox(height: 20),
                     // 2. Hizmet Seçimi (MultiDropdown)
                     const Text("Hizmet Seçimi", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    SizedBox(
+                      height: 15,
+                    ),
                     MultiDropdown(
-                      fieldDecoration: const FieldDecoration(hintText: "Hizmet Seçiniz!"),
+                      fieldDecoration: const FieldDecoration(
+                        hintText: "Hizmet Seçiniz!",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)), // Kenar ovali azaltıldı
+                        ),
+                      ),
                       items: appointmentProvider.services
                           .map((service) => DropdownItem<int>(
                                 value: service.hizmetId!,
@@ -151,32 +162,34 @@ class _AppointmentViewState extends State<AppointmentView> {
                         appointmentProvider.resetToCalendar();
                         appointmentProvider.setSelectedServices(selectedIds);
 
-                        // Check if selectedIds is not empty before accessing the last element
                         if (selectedIds.isNotEmpty) {
-                          selectedHizmetID = selectedIds.last; // Only assign if there are selected IDs
+                          selectedHizmetID = selectedIds.last;
                         } else {
-                          // Handle the case where no services are selected, if necessary
-                          selectedHizmetID = null; // or some default value
+                          selectedHizmetID = null;
                         }
                       },
                       selectedItemBuilder: (selectedItems) {
-                        // Seçilen hizmetlerin nasıl görüneceğini burada özelleştirebilirsiniz
-                        return Wrap(spacing: 8.0, children: [
-                          Chip(
-                            padding: EdgeInsets.zero,
-                            label: Text(selectedItems.label),
-                            onDeleted: () {
-                              // Chip silindiğinde hizmeti seçili listeden çıkar
-                              final id = selectedItems.value;
-                              selectedHizmetID = id;
-                              final updatedIds = List<int>.from(appointmentProvider.selectedServiceIds);
-                              updatedIds.remove(id);
-                              appointmentProvider.resetToCalendar();
-                              // provider.setSelectedServices(updatedIds);
-                            },
-                          )
-                        ]);
+                        return Wrap(
+                          spacing: 8.0,
+                          children: [
+                            Chip(
+                              padding: EdgeInsets.zero,
+                              label: Text(selectedItems.label),
+                              onDeleted: () {
+                                final id = selectedItems.value;
+                                selectedHizmetID = id;
+                                final updatedIds = List<int>.from(appointmentProvider.selectedServiceIds);
+                                updatedIds.remove(id);
+                                appointmentProvider.resetToCalendar();
+                              },
+                            ),
+                          ],
+                        );
                       },
+                      dropdownDecoration: DropdownDecoration(
+                        backgroundColor: Colors.white,
+                        borderRadius: BorderRadius.circular(4), // Oval kenarları azaltıldı
+                      ),
                     ),
 
                     const SizedBox(height: 20),
@@ -197,7 +210,18 @@ class _AppointmentViewState extends State<AppointmentView> {
                               ),
                               ElevatedButton(
                                 onPressed: () => appointmentProvider.calendarController.displayDate = DateTime.now(),
-                                child: const Text('Bugün'),
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8), // Yuvarlaklığı azaltmak için düşük bir değer ver
+                                  ),
+                                  backgroundColor: Colors.white, // Butonun arka plan rengi
+                                ),
+                                child: const Text(
+                                  'Bugün',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 75, 75, 75), // Yazı rengi
+                                  ),
+                                ),
                               ),
                             ],
                           ),
