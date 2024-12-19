@@ -17,6 +17,8 @@ import 'dart:convert';
 
 import '../navigator/custom_navigator.dart';
 
+UserModel? baslik;
+
 // LoginPage StatefulWidget'ı tanımlıyoruz
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -32,7 +34,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-  UserModel? myusermodel;
 
   @override
   void initState() {
@@ -63,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
           final Map<String, dynamic> responseData = data;
           UserModel user = UserModel.fromJson(responseData);
           if (user.status == true) {
+            baslik = user;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('${user.message}')),
             );

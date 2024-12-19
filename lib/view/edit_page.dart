@@ -113,6 +113,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
 
         if (responseBody == 'SUCCESS') {
           _showSuccessDialog('Şifre başarıyla güncellendi.');
+          await SharedDataService.passwordSil();
         } else if (responseBody == 'ESLESMEHATA') {
           _showErrorDialog('Yeni şifreler eşleşmiyor.');
         } else if (responseBody == 'MEVCUTHATA') {
@@ -317,7 +318,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                             controller: oldpassword,
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                              hintText: "Mevcut Şifreni Yaz",
+                              hintText: "Mevcut Şifrenizi Yazınız",
 
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -340,7 +341,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                             controller: newpassword,
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                              hintText: "Yeni Şifre",
+                              hintText: "Yeni Şifrenizi Yazınız",
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isNewPasswordObscure ? Icons.visibility_off : Icons.visibility,
@@ -363,7 +364,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                             controller: repaetnewpassword,
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 6), // Yatayda padding ekler
-                              hintText: "Şifre Tekrar Yaz",
+                              hintText: "Yeni Şifrenizi Tekrar Yazınız",
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isRepeatPasswordObscure ? Icons.visibility_off : Icons.visibility,

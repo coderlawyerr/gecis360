@@ -6,7 +6,9 @@ import 'package:armiyaapp/services/auth_service.dart';
 import 'package:armiyaapp/utils/constants.dart';
 import 'package:armiyaapp/view/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'edit_page.dart';
 import 'login.dart';
 
@@ -39,6 +41,7 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    fetchUserData();
     return Scaffold(
       backgroundColor: Colors.white,
       body: userModel == null
@@ -121,11 +124,11 @@ class _SettingPageState extends State<SettingPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text("Çıkış Yapmak Üzeresiniz?"),
-                                content: const Text("Çıkış yapmak istediğinizden emin misiniz?"),
+                                title: Text("Çıkış Yapmak Üzeresiniz?"),
+                                content: Text("Çıkış yapmak istediğinizden emin misiniz?"),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
                                       // Çıkış yapmaya karar verildiğinde LoginPage'e yönlendir
 

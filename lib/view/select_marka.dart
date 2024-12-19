@@ -112,7 +112,7 @@ class _SelectMarkaState extends State<SelectMarka> {
                       ...markalar.map((marka) {
                         return GestureDetector(
                           onTap: () {
-                            // MarkaHelper.setMarka(marka.db_user);
+                            MarkaHelper.setMarka(marka.adi);
                             login(context, marka.dbName, marka.dbUser); //////////////////////burasııı
                           },
                           child: Card(

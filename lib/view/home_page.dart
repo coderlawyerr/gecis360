@@ -3,10 +3,8 @@ import 'package:armiyaapp/data/app_shared_preference.dart';
 import 'package:armiyaapp/model/usermodel.dart';
 import 'package:armiyaapp/services/markaHelper.dart';
 
-import 'package:armiyaapp/view/appoinment/appoinment_view.dart';
-
 import 'package:armiyaapp/view/settings_page.dart';
-import 'package:armiyaapp/view/tabbar/tabbar.dart';
+
 import 'package:armiyaapp/view/login.dart';
 import 'package:armiyaapp/view/your_records.dart';
 import 'package:armiyaapp/widget/table.dart';
@@ -27,9 +25,9 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   UserModel? userModel;
-  String? selectedMarkaName; // Seçilen markanın adı
+  String? selectedMarkaName;
   final SharedDataService _sharedDataService = SharedDataService();
-  int page = 0; // Bottom navigation'da seçili olan sayfa
+  int page = 0;
   void sayfaGuncelle(int index) {
     print("sayfaGuncelle Çalıştı");
     setState(() {
@@ -42,8 +40,8 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    getUserData(); // Kullanıcı verisi alınıyor
-    getSelectedMarka(); // Seçilen marka adı alınıyor
+    getUserData();
+    getSelectedMarka();
   }
 
   // Seçilen markayı almak için fonksiyon
@@ -64,7 +62,8 @@ class HomePageState extends State<HomePage> {
   }
 
   // Her sekme için ilgili sayfa widget'ını döndüren fonksiyon
-  Widget getSelectedPage(int index, Function() onConfirm) {
+  Widget getSelectedPage(int index) {
+    getSelectedMarka();
     switch (index) {
       case 0:
         return Yourrecords(); // Randevular
@@ -72,12 +71,8 @@ class HomePageState extends State<HomePage> {
         return PrettyQrHomePage();
       case 2:
         return SettingPage(); // QR Kod
-      // case 3:
-      //   return const Yourrecords(); ////kayit
-      // case 4:
-      //   return const SettingPage(); ////ayarlar
       default:
-        return Yourrecords(); // Varsayılan sayfa
+        return PrettyQrHomePage(); // Varsayılan sayfa
     }
   }
 
@@ -165,11 +160,7 @@ class HomePageState extends State<HomePage> {
         },
         letIndexChange: (index) => true,
       ),
-      body: getSelectedPage(page, () {
-        setState(() {
-          page = 0;
-        });
-      }), // Alt menüden seçilen sayfayı burada gösteriyoruz
+      body: getSelectedPage(page), // Alt menüden seçilen sayfayı burada gösteriyoruz
     );
   }
 }
